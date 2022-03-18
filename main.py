@@ -2,7 +2,6 @@ import os
 import pygame
 from game import Game
 import settings
-from figure import Figure
 
 WIDTH, HEIGHT = 800, 600
 WIN = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
@@ -48,27 +47,21 @@ def main():
             if event.type == pygame.QUIT:
                 run = False
 
+        game_funcs = [
+            (pygame.K_LEFT, 'move_left'),
+            (pygame.K_RIGHT, 'move_right'),
+            (pygame.K_DOWN, 'move_down'),
+            (pygame.K_UP, 'rotate'),
+            (pygame.K_c, 'hold'),
+            (pygame.K_SPACE, 'drop'),
+            (pygame.K_ESCAPE, 'pause'),
+            (pygame.K_p, 'pause'),
+        ]
         keys_pressed = pygame.key.get_pressed()
-        if keys_pressed[pygame.K_LEFT]:
-            game.move_left()
-        if keys_pressed[pygame.K_RIGHT]:
-            game.move_right()
-        if keys_pressed[pygame.K_DOWN]:
-            game.move_down()
-        if keys_pressed[pygame.K_UP]:
-            game.rotate()
-        if keys_pressed[pygame.K_c]:
-            game.hold()
-        if keys_pressed[pygame.K_SPACE]:
-            game.drop()
-        if keys_pressed[pygame.K_ESCAPE]:
-            run = False
-        if keys_pressed[pygame.K_r]:
-            game = Game()
-        if keys_pressed[pygame.K_p]:
-            game.pause()
-        if keys_pressed[pygame.K_q]:
-            run = False
+        for key, func in game_funcs:
+            if keys_pressed[key]:
+                if hasattr(game, func):
+                    getattr(game, func)()
 
         draw_window(game)
 
