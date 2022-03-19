@@ -1,4 +1,7 @@
 import pygame
+from assets import ASSETS
+from figure import Figure
+from figures_queue import FiguresQueue
 import settings
 from stack import Stack
 
@@ -16,15 +19,20 @@ class Screen:
 
     def draw(
         self,
-        current_figure: pygame.Rect,
-        next_figure_type: int,
-
+        stack: Stack = None,
+        queue: FiguresQueue = None,
+        first_available_row: int = settings.DEFAULT_AVAILABLE_ROW
     ) -> None:
         self.win.fill(settings.BACKGROUND)
         self.draw_board()
+        if stack:
+            self.draw_stack(stack)
+        if queue:
+            figure = queue.peek()
+            self.draw_figure(figure, first_available_row)
         pygame.display.update()
 
-    def draw_board(self, stack):
+    def draw_board(self):
         # Draw a tetris board
         pygame.draw.rect(self.win, settings.BOARD_BACKGROUND,
                          (settings.BOARD_X, settings.BOARD_Y,
@@ -39,12 +47,22 @@ class Screen:
                     border_radius=2)
 
     def draw_stack(self, stack: Stack):
-        for i in range(0, len(stack.stack)):
-            for j in range(0, len(stack.stack[i])):
-                if stack.stack[i][j] != 0:
-                    pygame.draw.rect(self.win, settings.COLORS[stack.stack[i][j]],
-                                     (settings.BOARD_X + i * settings.BASE_SQUARE_SIZE,
-                                      settings.BOARD_Y + j * settings.BASE_SQUARE_SIZE,
-                                      settings.BASE_SQUARE_SIZE,
-                                      settings.BASE_SQUARE_SIZE))
-        pass
+        for i in range(0, stack.size):
+            for j in range(0, settings.COLS):
+                if stack.items[i][j] != 0:
+                    self.win.blit(
+                        ASSETS[stack.items[i][j]],
+                        (settings.BOARD_X + j * settings.BASE_SQUARE_SIZE),
+                        (settings.BOARD_Y + (settings.ROWS - i)
+                         * settings.BASE_SQUARE_SIZE)
+                    )
+
+    def draw_figure(self, figure: Figure, first_available_row: int):
+        if figure.coords is None:
+            figure.please_get_coords(first_available_row)
+        for row, col in figure.coords:
+            # print("row:", row, " - col:", col)
+            x = settings.BOARD_X + col*settings.BASE_SQUARE_SIZE
+            y = settings.BOARD_Y + (settings.ROWS - 1 - row) * \
+                settings.BASE_SQUARE_SIZE
+            self.win.blit(figure.asset, (x, y))

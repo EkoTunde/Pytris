@@ -1,4 +1,3 @@
-import os
 import pygame
 from game import Game
 import settings
@@ -10,7 +9,7 @@ pygame.display.set_caption(settings.CAPTION)
 start_time = 0
 
 
-def draw_window(game: Game, elapsed_time) -> None:
+def draw_window(game: Game, stack: list, elapsed_time) -> None:
     WIN.fill(settings.BACKGROUND)
     game.draw(WIN, elapsed_time)
     pygame.display.update()
@@ -29,14 +28,16 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     game = Game(WIN)
-                if event.key == pygame.K_UP:
-                    game.rotate()
+                # if event.key == pygame.K_UP:
+                #     game.rotate()
                 if event.key == pygame.K_LEFT:
                     game.move_left()
                 if event.key == pygame.K_RIGHT:
                     game.move_right()
-
-        draw_window(game, elapsed_time)
+                if event.key == pygame.K_DOWN:
+                    game.move_down()
+        game.update(elapsed_time)
+        # draw_window(game, stack, elapsed_time)
 
     pygame.quit()
 

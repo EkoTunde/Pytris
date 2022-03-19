@@ -1,11 +1,66 @@
 import os
-from typing import Tuple
+import consts
 import pygame
 import settings
-import consts
+from assets import ASSETS
+from typing import Tuple
+from utils import get_initial_coords
 
 
 class Figure:
+
+    def __init__(
+        self,
+        figure_type: int,
+    ) -> None:
+        self._figure_type = figure_type
+        if (not isinstance(self._figure_type, int)
+                and self._figure_type < 1
+                or self._figure_type > 7):
+            raise ValueError("Figure type must be an integer between 1 and 7")
+        self._asset = ASSETS.get(self._figure_type)
+        self._coords = None
+        self._rotation = 0
+
+    @property
+    def figure_type(self) -> int:
+        return self._figure_type
+
+    @property
+    def coords(self) -> list[Tuple[int, int]]:
+        return self._coords
+
+    def please_get_coords(self, row):
+        self._coords = get_initial_coords(self._figure_type, row)
+        return self._coords
+
+    @property
+    def asset(self):
+        return self._asset
+
+    def move_left(self):
+        for i, coord in enumerate(self._coords):
+            print("moving left", coord, "at", i)
+            self._coords[i] = (coord[0], coord[1] - 1)
+
+    def move_right(self):
+        for i, coord in enumerate(self._coords):
+            print("moving right", coord, "at", i)
+            self._coords[i] = (coord[0], coord[1] + 1)
+
+    def move_down(self):
+        for i, coord in enumerate(self._coords):
+            print("moving down", coord, "at", i)
+            self._coords[i] = (coord[0] - 1, coord[1])
+
+    def rotate(self):
+        self.rotation += 1
+        if self.rotation > 3:
+            self.rotation = 0
+        self.figure = pygame.transform.rotate(self.figure, 90)
+
+
+class Figure2:
 
     def __init__(
         self,
