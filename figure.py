@@ -4,7 +4,7 @@ import pygame
 import settings
 from assets import ASSETS
 from typing import Tuple
-from utils import get_initial_coords
+from utils import get_initial_coords, rotate_figure_i, rotate_figure_z
 
 
 class Figure:
@@ -40,24 +40,26 @@ class Figure:
 
     def move_left(self):
         for i, coord in enumerate(self._coords):
-            print("moving left", coord, "at", i)
             self._coords[i] = (coord[0], coord[1] - 1)
 
     def move_right(self):
         for i, coord in enumerate(self._coords):
-            print("moving right", coord, "at", i)
             self._coords[i] = (coord[0], coord[1] + 1)
 
     def move_down(self):
         for i, coord in enumerate(self._coords):
-            print("moving down", coord, "at", i)
             self._coords[i] = (coord[0] - 1, coord[1])
 
     def rotate(self):
-        self.rotation += 1
-        if self.rotation > 3:
-            self.rotation = 0
-        self.figure = pygame.transform.rotate(self.figure, 90)
+        if self._figure_type == consts.FIGURE_I:
+            print("rotating figure I")
+            self._coords = rotate_figure_i(self._coords, self._rotation)
+        if self._figure_type == consts.FIGURE_Z:
+            print("rotating figure Z")
+            self._coords = rotate_figure_z(self._coords, self._rotation)
+        self._rotation += 1
+        if self._rotation > 3:
+            self._rotation = 0
 
 
 class Figure2:

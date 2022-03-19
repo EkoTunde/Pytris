@@ -28,8 +28,8 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     game = Game(WIN)
-                # if event.key == pygame.K_UP:
-                #     game.rotate()
+                if event.key == pygame.K_UP:
+                    game.rotate()
                 if event.key == pygame.K_LEFT:
                     game.move_left()
                 if event.key == pygame.K_RIGHT:

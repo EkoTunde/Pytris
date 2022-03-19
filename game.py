@@ -112,7 +112,7 @@ class Game:
         # self.queue.peek().move_down()
 
     def rotate(self):
-        self.current_figure.rotate()
+        self.queue.peek().rotate()
 
     def hold(self):
         pass
