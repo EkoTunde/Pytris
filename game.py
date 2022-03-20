@@ -1,7 +1,9 @@
 import random
+import consts
 import settings
 import pygame
-from figure import Figure
+from figure import (Figure, FigureI, FigureJ, FigureL,
+                    FigureO, FigureS, FigureT, FigureZ)
 from figures_queue import FiguresQueue
 from screen import Screen
 from stack import Stack
@@ -36,9 +38,43 @@ class Game:
         self.last_elapsed_time = 0
         self.should_move = True
         self.screen = Screen(window)
-        self.queue = FiguresQueue(
-            *[Figure(random.randint(1, 7)) for _ in range(4)])
+        figures = [self.get_figure_by_consts(
+            random.randint(1, 7))() for _ in range(4)]
+        self.queue = FiguresQueue(*figures)
         self.stack = Stack()
+
+    def get_figure_by_consts(
+        self, const: int
+    ) -> Figure:
+        """
+        Return a figure subclass by the const.
+
+        Args:
+            const (int): represents the figure type.
+
+        Raises:
+            ValueError: if the const is not a valid figure type.
+
+        Returns:
+            Figure: the figure subclass.
+        """
+        if const == consts.FIGURE_I:
+            return FigureI
+        elif const == consts.FIGURE_J:
+            return FigureJ
+        elif const == consts.FIGURE_L:
+            return FigureL
+        elif const == consts.FIGURE_O:
+            return FigureO
+        elif const == consts.FIGURE_S:
+            return FigureS
+        elif const == consts.FIGURE_T:
+            return FigureT
+        elif const == consts.FIGURE_Z:
+            return FigureZ
+        else:
+            raise ValueError(
+                "Invalid figure type= {const}".format(const=const))
 
     def apply_changes(self):
         if not self.pause:
@@ -51,7 +87,8 @@ class Game:
         # delay_fraction = settings.GAME_BASE_VELOCITY * settings.DELAY_UNIT
         # delay = settings.INITIAL_DELAY - delay_fraction
         # pygame.time.delay(delay)
-        self.should_move = elapsed_time // 1000 > self.last_elapsed_time // 1000
+        self.should_move = (elapsed_time // 1000 >
+                            self.last_elapsed_time // 1000)
         self.last_elapsed_time = elapsed_time
         self.apply_changes()
         self.draw_board(win)
@@ -67,7 +104,10 @@ class Game:
 
     def reset_figure(self):
         random_int = random.randint(1, 7)
-        self.current_figure = Figure(random_int)
+        if random_int == consts.FIGURE_I:
+            self.current_figure_type = consts.FIGURE_I
+        else:
+            self.current_figure = Figure(random_int)
 
     def draw_current_figure(self, win, elapsed_time):
         print(elapsed_time)

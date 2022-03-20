@@ -122,11 +122,6 @@ def will_collide_left(
                     return True
             except IndexError:
                 pass
-        # if stack.size == 0:
-        #     return False
-        # if stack.size >= row:
-        #     if stack.items[row][col - 1] != 0:
-        #         return True
     return False
 
 
@@ -143,12 +138,17 @@ def will_collide_right(
                     return True
             except IndexError:
                 pass
-        # if stack.size == 0:
-        #     return False
-        # if stack.size >= row:
-        #     if stack.items[row][col + 1] != 0:
-        #         return True
     return False
+
+
+def relocate(
+    coords: Tuple[int, int],
+    up=0,
+    left=0,
+    down=0,
+    right=0
+) -> Tuple[int, int]:
+    return (coords[0] + up - down, coords[1] + right - left)
 
 
 def rotate_figure_i(
@@ -160,23 +160,37 @@ def rotate_figure_i(
     """
     A, B, C, D = coords[0], coords[1], coords[2], coords[3]
     if current_rotation == 0:
-        A = (A[0]+1, A[1]+2)
-        B = (B[0], B[1]+1)
-        C = (C[0]-1, C[1])
-        D = (D[0]-2, D[1]-1)
+        A = relocate(A, up=1, right=2)
+        # A = (A[0]+1, A[1]+2)
+        B = relocate(B, right=1)
+        # B = (B[0], B[1]+1)
+        C = relocate(C, down=1)
+        # C = (C[0]-1, C[1])
+        D = relocate(D, down=1, left=1)
+        # D = (D[0]-2, D[1]-1)
     if current_rotation == 1:
-        A = (A[0]-1, A[1]+1)
-        C = (C[0]+1, C[1]-1)
-        D = (D[0]+2, D[1]-2)
+        A = relocate(A, down=1, right=1)
+        # A = (A[0]-1, A[1]+1)
+        C = relocate(C, up=1, left=1)
+        # C = (C[0]+1, C[1]-1)
+        D = relocate(D, up=2, left=1)
+        # D = (D[0]+2, D[1]-2)
     if current_rotation == 2:
-        A = (A[0]-2, A[1]-2)
-        B = (B[0]-1, B[1]-1)
-        D = (D[0]+1, D[1]+1)
+        A = relocate(A, down=2, left=2)
+        # A = (A[0]-2, A[1]-2)
+        B = relocate(B, down=1, left=1)
+        # B = (B[0]-1, B[1]-1)
+        D = relocate(D, up=1, right=1)
+        # D = (D[0]+1, D[1]+1)
     if current_rotation == 3:
-        A = (A[0]+2, A[1]-1)
-        B = (B[0]+1, B[1])
-        C = (C[0], C[1]+1)
-        D = (D[0]-1, D[1]+2)
+        A = relocate(A, up=2, left=1)
+        # A = (A[0]+2, A[1]-1)
+        B = relocate(B, up=1)
+        # B = (B[0]+1, B[1])
+        C = relocate(C, right=1)
+        # C = (C[0], C[1]+1)
+        D = relocate(D, right=2, down=1)
+        # D = (D[0]-1, D[1]+2)
     coords = [A, B, C, D]
     return coords
 
