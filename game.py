@@ -1,7 +1,7 @@
-import random
 import consts
 import settings
 import pygame
+from randomizer import randint
 from figure import (Figure, FigureI, FigureJ, FigureL,
                     FigureO, FigureS, FigureT, FigureZ)
 from figures_queue import FiguresQueue
@@ -38,8 +38,13 @@ class Game:
         self.last_elapsed_time = 0
         self.should_move = True
         self.screen = Screen(window)
-        figures = [self.get_figure_by_consts(
-            random.randint(1, 7))() for _ in range(4)]
+        figures = []
+        used_nums = []
+        for _ in range(4):
+            rand = randint(1, 7, *figures)
+            fig = self.get_figure_by_consts(rand)()
+            used_nums.append(rand)
+            figures.append(fig)
         self.queue = FiguresQueue(*figures)
         self.stack = Stack()
 
@@ -103,7 +108,7 @@ class Game:
         self.pile.append(figure)
 
     def reset_figure(self):
-        random_int = random.randint(1, 7)
+        random_int = randint(1, 7)
         if random_int == consts.FIGURE_I:
             self.current_figure_type = consts.FIGURE_I
         else:

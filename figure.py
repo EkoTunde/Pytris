@@ -193,7 +193,7 @@ class FigureJ(Figure):
         return [relocate(coords[0], down=1),
                 relocate(coords[1], right=1),
                 relocate(coords[2], up=1),
-                relocate(coords[2], up=2, left=1)]
+                relocate(coords[3], up=2, left=1)]
 
     def rotate_to_270(
         self, coords: List[Tuple[int, int]]
@@ -208,7 +208,7 @@ class FigureJ(Figure):
     ) -> List[Tuple[int, int]]:
         return [relocate(coords[0], up=2),
                 relocate(coords[1], up=1, left=1),
-                relocate(coords[2], down=2, left=2),
+                coords[2],
                 relocate(coords[3], down=1, right=1)]
 
 
@@ -216,9 +216,6 @@ class FigureL(Figure):
 
     def __init__(self) -> None:
         super(FigureL, self).__init__(consts.FIGURE_L)
-
-    def perform_rotate(self, rotation) -> None:
-        pass
 
     def get_initial_coords(
         self, row
@@ -237,34 +234,34 @@ class FigureL(Figure):
     def rotate_to_90(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], right=2),
-                relocate(coords[1], up=1, right=1),
-                coords[2],
-                relocate(coords[3], down=1, left=1)]
+        return [relocate(coords[0], up=1, right=1),
+                coords[1],
+                relocate(coords[2], down=1, left=1),
+                relocate(coords[3], down=2)]
 
     def rotate_to_180(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], up=1, right=1),
-                relocate(coords[1], down=1, left=1),
-                relocate(coords[2], down=2, left=2),
-                relocate(coords[2], down=2, left=2)]
+        return [relocate(coords[0], right=1),
+                relocate(coords[1], up=1),
+                relocate(coords[2], up=2, left=1),
+                relocate(coords[3], up=1, left=2)]
 
     def rotate_to_270(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], down=1, right=1),
-                relocate(coords[1], up=1, left=1),
-                relocate(coords[2], up=2, left=1),
-                relocate(coords[3], right=1)]
+        return [relocate(coords[0], down=2, left=1),
+                relocate(coords[1], down=1),
+                relocate(coords[2], right=1),
+                relocate(coords[3], up=1)]
 
     def rotate_to_0(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], right=1),
-                relocate(coords[1], down=1, left=1),
-                relocate(coords[2], down=2, left=2),
-                relocate(coords[3], up=1, right=1)]
+        return [relocate(coords[0], up=1, left=1),
+                coords[1],
+                relocate(coords[2], down=1, right=1),
+                relocate(coords[3], right=2)]
 
 
 class FigureO(Figure):
@@ -289,34 +286,22 @@ class FigureO(Figure):
     def rotate_to_90(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], right=2),
-                relocate(coords[1], up=1, right=1),
-                coords[2],
-                relocate(coords[3], down=1, left=1)]
+        return coords
 
     def rotate_to_180(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], up=1, right=1),
-                relocate(coords[1], down=1, left=1),
-                relocate(coords[2], down=2, left=2),
-                relocate(coords[2], down=2, left=2)]
+        return coords
 
     def rotate_to_270(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], down=1, right=1),
-                relocate(coords[1], up=1, left=1),
-                relocate(coords[2], up=2, left=1),
-                relocate(coords[3], right=1)]
+        return coords
 
     def rotate_to_0(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], right=1),
-                relocate(coords[1], down=1, left=1),
-                relocate(coords[2], down=2, left=2),
-                relocate(coords[3], up=1, right=1)]
+        return coords
 
 
 class FigureS(Figure):
@@ -344,34 +329,28 @@ class FigureS(Figure):
     def rotate_to_90(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], right=2),
-                relocate(coords[1], up=1, right=1),
-                coords[2],
-                relocate(coords[3], down=1, left=1)]
+        return [relocate(coords[0], up=1, right=1),
+                coords[1],
+                relocate(coords[2], down=1, right=1),
+                relocate(coords[3], down=2)]
 
     def rotate_to_180(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], up=1, right=1),
-                relocate(coords[1], down=1, left=1),
-                relocate(coords[2], down=2, left=2),
-                relocate(coords[2], down=2, left=2)]
+        return [relocate(coords[0], down=1, left=1),
+                coords[1],
+                relocate(coords[2], up=1, left=1),
+                relocate(coords[3], up=2)]
 
     def rotate_to_270(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], down=1, right=1),
-                relocate(coords[1], up=1, left=1),
-                relocate(coords[2], up=2, left=1),
-                relocate(coords[3], right=1)]
+        return self.rotate_to_90(coords)
 
     def rotate_to_0(
         self, coords: List[Tuple[int, int]]
     ) -> List[Tuple[int, int]]:
-        return [relocate(coords[0], right=1),
-                relocate(coords[1], down=1, left=1),
-                relocate(coords[2], down=2, left=2),
-                relocate(coords[3], up=1, right=1)]
+        return self.rotate_to_180(coords)
 
 
 class FigureZ(Figure):
@@ -410,7 +389,7 @@ class FigureZ(Figure):
         return [relocate(coords[0], up=1, right=1),
                 relocate(coords[1], down=1, left=1),
                 relocate(coords[2], down=2, left=2),
-                relocate(coords[2], down=2, left=2)]
+                relocate(coords[3], down=2, left=2)]
 
     def rotate_to_270(
         self, coords: List[Tuple[int, int]]
@@ -465,7 +444,7 @@ class FigureT(Figure):
         return [relocate(coords[0], up=1, right=1),
                 relocate(coords[1], down=1, left=1),
                 relocate(coords[2], down=2, left=2),
-                relocate(coords[2], down=2, left=2)]
+                relocate(coords[3], down=2, left=2)]
 
     def rotate_to_270(
         self, coords: List[Tuple[int, int]]
