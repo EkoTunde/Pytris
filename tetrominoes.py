@@ -4,7 +4,8 @@ import pygame
 import settings
 from assets import ASSETS
 from typing import List, Tuple, Union
-from utils import relocate
+from stack import Stack
+from utils import relocate, rotate_coord_by_kick
 # , get_initial_coords, rotate_figure_i, rotate_figure_z
 
 
@@ -144,24 +145,50 @@ class Tetromino:
             clockwise: bool = True,
             terrain: List[List[int]] = None,
     ) -> List[Union[Tuple[int, int], None]]:
-        _from = self._rotation
-        to = _from - 1 if clockwise else _from + 1
-        if clockwise and to == consts.DEGREES_270 + 1:
-            to = consts.DEGREES_0
-        if not clockwise and to == consts.DEGREES_0 - 1:
-            to = consts.DEGREES_270
+        position_from = self._rotation
+        position_to = position_from - 1 if clockwise else position_from + 1
+        if clockwise and position_to == consts.DEGREES_270 + 1:
+            position_to = consts.DEGREES_0
+        if not clockwise and position_to == consts.DEGREES_0 - 1:
+            position_to = consts.DEGREES_270
+        positions = (position_from, position_to)
         current_coords = self._coords.copy()
         for i in range(settings.ROTATION_TESTS_ATTEMPTS):
-            how_to_rotate = consts.ROTATION_DATA[self._figure_type][(
-                _from, to)]
-            for coord in current_coords:
-                relocate(coord, **how_to_rotate)
+            how_to_rotate = consts.ROTATION_DATA[self._figure_type][positions]
+            for j, coord in enumerate(current_coords):
+                if self._figure_type == consts.TETROMINO_I:
+                    kick = consts.I_WALL_KICK_DATA[positions][i]
+                else:
+                    kick = consts.J_L_S_T_Z_WALL_KICK_DATA[positions][i]
+                test_coords = rotate_coord_by_kick(
+                    relocate(coord, **how_to_rotate[j]), kick)
+                if not self.are_valid_coords(test_coords, terrain):
+                    break
             if clockwise:
                 coords = self.rotate_clockwise()
             else:
                 coords = self.rotate_counterclockwise()
             if self.is_valid_position(coords, terrain):
                 self._coords = coords
+
+    def are_valid_coords(
+            self,
+            coords: List[Tuple[int, int]],
+            terrain: Stack,
+    ) -> bool:
+        for row, col in coords:
+            # Is in the lowest row or there's a figure below
+            if row < 0:
+                return False
+            if col < 0 or col >= settings.PLAYFIELD_WIDTH:
+                return False
+            if not terrain.is_empty:
+                try:
+                    if terrain.items[settings.ROWS - row - 1][col] != 0:
+                        return True
+                except IndexError:
+                    pass
+        return True
 
 
 class TetrominoI(Tetromino):

@@ -93,8 +93,8 @@ def get_initial_coords(
 
 
 def will_collide_bellow(
-        stack: Stack,
-        figure_coords: List[Tuple[int, int]]
+    stack: Stack,
+    figure_coords: List[Tuple[int, int]]
 ) -> bool:
     for row, col in figure_coords:
         # Is in the lowest row or there's a figure below
@@ -150,6 +150,17 @@ def relocate(
 ) -> Tuple[int, int]:
     """Returns a new Tuple with the coordinates relocated."""
     return (coords[0] + up - down, coords[1] + right - left)
+
+
+def rotate_coord_by_kick(
+    coord: Tuple[int, int],
+    kick: Tuple[int, int]
+) -> Tuple[int, int]:
+    """
+    Returns a new Tuple with the coordinates rotated by kick.
+    """
+    horizontal, vertical = kick[0], kick[1]
+    return (coord[0] + vertical, coord[1] + horizontal)
 
 
 def rotate_figure_i(

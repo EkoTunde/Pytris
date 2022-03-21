@@ -34,9 +34,9 @@ class Screen:
 
     def draw_playfield(self):
         # Draw a tetris board
-        pygame.draw.rect(self.win, settings.BOARD_BACKGROUND,
+        pygame.draw.rect(self.win, settings.PLAYFIELD_BACKGROUND,
                          (settings.BOARD_X, settings.BOARD_Y,
-                          settings.BOARD_WIDTH, settings.BOARD_HEIGHT))
+                          settings.PLAYFIELD_WIDTH, settings.PLAYFIELD_HEIGHT))
         for i in range(0, 10):
             for j in range(0, 20):
                 pygame.draw.rect(self.win, settings.BACKGROUND, (
@@ -61,7 +61,7 @@ class Screen:
         if figure.coords is None:
             figure.please_get_coords(first_available_row)
         for row, col in figure.coords:
-            # print("row:", row, " - col:", col)
+            print("row is", row, " and col is", col)
             x = settings.BOARD_X + col*settings.BASE_SQUARE_SIZE
             y = settings.BOARD_Y + (settings.ROWS - 1 - row) * \
                 settings.BASE_SQUARE_SIZE
