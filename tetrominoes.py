@@ -3,7 +3,7 @@ import consts
 import pygame
 import settings
 from assets import ASSETS
-from typing import List, Tuple
+from typing import List, Tuple, Union
 from utils import relocate
 # , get_initial_coords, rotate_figure_i, rotate_figure_z
 
@@ -138,6 +138,30 @@ class Tetromino:
     ) -> List[Tuple[int, int]]:
         raise NotImplementedError(
             "Please implement this method: rotate")
+
+    def attempt_rotate(
+            self,
+            clockwise: bool = True,
+            terrain: List[List[int]] = None,
+    ) -> List[Union[Tuple[int, int], None]]:
+        _from = self._rotation
+        to = _from - 1 if clockwise else _from + 1
+        if clockwise and to == consts.DEGREES_270 + 1:
+            to = consts.DEGREES_0
+        if not clockwise and to == consts.DEGREES_0 - 1:
+            to = consts.DEGREES_270
+        current_coords = self._coords.copy()
+        for i in range(settings.ROTATION_TESTS_ATTEMPTS):
+            how_to_rotate = consts.ROTATION_DATA[self._figure_type][(
+                _from, to)]
+            for coord in current_coords:
+                relocate(coord, **how_to_rotate)
+            if clockwise:
+                coords = self.rotate_clockwise()
+            else:
+                coords = self.rotate_counterclockwise()
+            if self.is_valid_position(coords, terrain):
+                self._coords = coords
 
 
 class TetrominoI(Tetromino):
