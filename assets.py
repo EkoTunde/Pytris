@@ -15,32 +15,32 @@ def figure_image(figure_type):
 SIZE = (settings.BASE_SQUARE_SIZE, settings.BASE_SQUARE_SIZE)
 
 ASSETS = {
-    consts.FIGURE_I: pygame.transform.scale(
-        figure_image(consts.FIGURE_I),
+    consts.TETROMINO_I: pygame.transform.scale(
+        figure_image(consts.TETROMINO_I),
         SIZE
     ),
-    consts.FIGURE_Z: pygame.transform.scale(
-        figure_image(consts.FIGURE_Z),
+    consts.TETROMINO_Z: pygame.transform.scale(
+        figure_image(consts.TETROMINO_Z),
         SIZE
     ),
-    consts.FIGURE_S: pygame.transform.scale(
-        figure_image(consts.FIGURE_S),
+    consts.TETROMINO_S: pygame.transform.scale(
+        figure_image(consts.TETROMINO_S),
         SIZE
     ),
-    consts.FIGURE_T: pygame.transform.scale(
-        figure_image(consts.FIGURE_T),
+    consts.TETROMINO_T: pygame.transform.scale(
+        figure_image(consts.TETROMINO_T),
         SIZE
     ),
-    consts.FIGURE_J: pygame.transform.scale(
-        figure_image(consts.FIGURE_J),
+    consts.TETROMINO_J: pygame.transform.scale(
+        figure_image(consts.TETROMINO_J),
         SIZE
     ),
-    consts.FIGURE_L: pygame.transform.scale(
-        figure_image(consts.FIGURE_L),
+    consts.TETROMINO_L: pygame.transform.scale(
+        figure_image(consts.TETROMINO_L),
         SIZE
     ),
-    consts.FIGURE_O: pygame.transform.scale(
-        figure_image(consts.FIGURE_O),
+    consts.TETROMINO_O: pygame.transform.scale(
+        figure_image(consts.TETROMINO_O),
         SIZE
     ),
 }

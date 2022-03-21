@@ -12,7 +12,7 @@ def get_initial_coords(
     Process coordinates for figure.
     """
     x = 3
-    if figure_type == consts.FIGURE_I:
+    if figure_type == consts.TETROMINO_I:
         #    0 1 2 3 4 5 6 7 8 9
         # 0
         # 1        o o o o
@@ -23,7 +23,7 @@ def get_initial_coords(
             (row, x + 2),
             (row, x + 3)
         ]
-    elif figure_type == consts.FIGURE_O:
+    elif figure_type == consts.TETROMINO_O:
         #    0 1 2 3 4 5 6 7 8 9
         # 0          o o
         # 1          o o
@@ -35,7 +35,7 @@ def get_initial_coords(
             (row+1, x),
             (row+1, x + 1)
         ]
-    elif figure_type == consts.FIGURE_T:
+    elif figure_type == consts.TETROMINO_T:
         #    0 1 2 3 4 5 6 7 8 9
         # 0          o
         # 1        o o o
@@ -46,7 +46,7 @@ def get_initial_coords(
             (row, x + 2),
             (row+1, x + 1)
         ]
-    elif figure_type == consts.FIGURE_L:
+    elif figure_type == consts.TETROMINO_L:
         #    0 1 2 3 4 5 6 7 8 9
         # 0            o
         # 1        o o o
@@ -57,7 +57,7 @@ def get_initial_coords(
             (row, x + 2),
             (row+1, x + 2)
         ]
-    elif figure_type == consts.FIGURE_J:
+    elif figure_type == consts.TETROMINO_J:
         #    0 1 2 3 4 5 6 7 8 9
         # 0        o
         # 1        o o o
@@ -68,7 +68,7 @@ def get_initial_coords(
             (row, x + 2),
             (row+1, x)
         ]
-    elif figure_type == consts.FIGURE_S:
+    elif figure_type == consts.TETROMINO_S:
         #    0 1 2 3 4 5 6 7 8 9
         # 0          o o
         # 1        o o
@@ -79,7 +79,7 @@ def get_initial_coords(
             (row+1, x + 1),
             (row+1, x + 2)
         ]
-    elif figure_type == consts.FIGURE_Z:
+    elif figure_type == consts.TETROMINO_Z:
         #    0 1 2 3 4 5 6 7 8 9
         # 0        o o
         # 1          o o

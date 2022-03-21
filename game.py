@@ -2,8 +2,8 @@ import consts
 import settings
 import pygame
 from randomizer import randint
-from figure import (Figure, FigureI, FigureJ, FigureL,
-                    FigureO, FigureS, FigureT, FigureZ)
+from tetrominoes import (Tetromino, TetrominoI, TetrominoJ, TetrominoL,
+                         TetrominoO, TetrominoS, TetrominoT, TetrominoZ)
 from figures_queue import FiguresQueue
 from screen import Screen
 from stack import Stack
@@ -23,7 +23,7 @@ class Game:
         self.score = 0
         self.level = 1
         self.lines = 0
-        self.figure_playing = Figure(1)
+        self.figure_playing = Tetromino(1)
         self.current_figure = None
         self.current_figure_type = None
         self.current_figure_x = settings.BOARD_X
@@ -50,7 +50,7 @@ class Game:
 
     def get_figure_by_consts(
         self, const: int
-    ) -> Figure:
+    ) -> Tetromino:
         """
         Return a figure subclass by the const.
 
@@ -63,20 +63,20 @@ class Game:
         Returns:
             Figure: the figure subclass.
         """
-        if const == consts.FIGURE_I:
-            return FigureI
-        elif const == consts.FIGURE_J:
-            return FigureJ
-        elif const == consts.FIGURE_L:
-            return FigureL
-        elif const == consts.FIGURE_O:
-            return FigureO
-        elif const == consts.FIGURE_S:
-            return FigureS
-        elif const == consts.FIGURE_T:
-            return FigureT
-        elif const == consts.FIGURE_Z:
-            return FigureZ
+        if const == consts.TETROMINO_I:
+            return TetrominoI
+        elif const == consts.TETROMINO_J:
+            return TetrominoJ
+        elif const == consts.TETROMINO_L:
+            return TetrominoL
+        elif const == consts.TETROMINO_O:
+            return TetrominoO
+        elif const == consts.TETROMINO_S:
+            return TetrominoS
+        elif const == consts.TETROMINO_T:
+            return TetrominoT
+        elif const == consts.TETROMINO_Z:
+            return TetrominoZ
         else:
             raise ValueError(
                 "Invalid figure type= {const}".format(const=const))
@@ -109,10 +109,10 @@ class Game:
 
     def reset_figure(self):
         random_int = randint(1, 7)
-        if random_int == consts.FIGURE_I:
-            self.current_figure_type = consts.FIGURE_I
+        if random_int == consts.TETROMINO_I:
+            self.current_figure_type = consts.TETROMINO_I
         else:
-            self.current_figure = Figure(random_int)
+            self.current_figure = Tetromino(random_int)
 
     def draw_current_figure(self, win, elapsed_time):
         print(elapsed_time)
@@ -135,29 +135,20 @@ class Game:
     def move_left(self):
         if not will_collide_left(self.stack, self.queue.peek().coords):
             self.queue.peek().move_left()
-        # self.queue.peek().move_left()
-        # mov = self.current_figure.x - settings.BASE_SQUARE_SIZE
-        # if mov >= settings.BOARD_X:
-        #     self.current_figure_x = mov
 
     def move_right(self):
         if not will_collide_right(self.stack, self.queue.peek().coords):
             self.queue.peek().move_right()
-        # self.queue.peek().move_right()
-        # mov = self.current_figure.x + settings.BASE_SQUARE_SIZE
-        # end = mov+self.current_figure.width
-        # max = settings.BOARD_X + settings.BOARD_WIDTH
-        # if end <= max:
-        #     self.current_figure_x = mov
 
     def move_down(self):
         if not will_collide_bellow(self.stack, self.queue.peek().coords):
             self.queue.peek().move_down()
-        # Add to stack
-        # self.queue.peek().move_down()
 
-    def rotate(self):
-        self.queue.peek().rotate()
+    def rotate_right(self):
+        self.queue.peek().rotate_clockwise()
+
+    def rotate_left(self):
+        self.queue.peek().rotate_counterclockwise()
 
     def hold(self):
         pass

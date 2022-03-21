@@ -1,6 +1,6 @@
 import pygame
 from assets import ASSETS
-from figure import Figure
+from tetrominoes import Tetromino
 from figures_queue import FiguresQueue
 import settings
 from stack import Stack
@@ -24,7 +24,7 @@ class Screen:
         first_available_row: int = settings.DEFAULT_AVAILABLE_ROW
     ) -> None:
         self.win.fill(settings.BACKGROUND)
-        self.draw_board()
+        self.draw_playfield()
         if stack:
             self.draw_stack(stack)
         if queue:
@@ -32,7 +32,7 @@ class Screen:
             self.draw_figure(figure, first_available_row)
         pygame.display.update()
 
-    def draw_board(self):
+    def draw_playfield(self):
         # Draw a tetris board
         pygame.draw.rect(self.win, settings.BOARD_BACKGROUND,
                          (settings.BOARD_X, settings.BOARD_Y,
@@ -57,7 +57,7 @@ class Screen:
                          * settings.BASE_SQUARE_SIZE)
                     )
 
-    def draw_figure(self, figure: Figure, first_available_row: int):
+    def draw_figure(self, figure: Tetromino, first_available_row: int):
         if figure.coords is None:
             figure.please_get_coords(first_available_row)
         for row, col in figure.coords:

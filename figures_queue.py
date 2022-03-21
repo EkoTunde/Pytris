@@ -2,13 +2,13 @@
 # Class Queue
 from typing import Union
 
-from figure import Figure
+from tetrominoes import Tetromino
 
 
 class FiguresQueue:
     """Figures' queue class."""
 
-    def __init__(self, *args: Figure) -> None:
+    def __init__(self, *args: Tetromino) -> None:
         self.items = []
         for figure in args:
             self.items.insert(0, figure)
@@ -19,7 +19,7 @@ class FiguresQueue:
     def enqueue(self, item) -> None:
         self.items.insert(0, item)
 
-    def dequeue(self) -> Union[Figure, None]:
+    def dequeue(self) -> Union[Tetromino, None]:
         if self.is_empty():
             return None
         return self.items.pop()
@@ -27,7 +27,7 @@ class FiguresQueue:
     def size(self) -> int:
         return len(self.items)
 
-    def peek(self) -> Figure:
+    def peek(self) -> Tetromino:
         return self.items[-1]
 
     def __str__(self):
