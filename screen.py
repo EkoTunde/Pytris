@@ -61,7 +61,7 @@ class Screen:
         if figure.coords is None:
             figure.please_get_coords(first_available_row)
         for row, col in figure.coords:
-            print("row is", row, " and col is", col)
+            # print("row is", row, " and col is", col)
             x = settings.BOARD_X + col*settings.BASE_SQUARE_SIZE
             y = settings.BOARD_Y + (settings.ROWS - 1 - row) * \
                 settings.BASE_SQUARE_SIZE

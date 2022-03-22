@@ -156,13 +156,73 @@ class Tetromino:
         if self._figure_type == consts.TETROMINO_O:
             return
         how_to_rotate = consts.ROTATION_DATA[self._figure_type][positions]
-        for test_case_index in range(settings.ROTATION_TESTS_ATTEMPTS):
-            candidates = self.check_test_case_for_coords(
-                test_case_index, positions, how_to_rotate, terrain
-            )
-            if candidates is not None:
-                self._coords = candidates
-                break
+        if how_to_rotate is None:
+            return
+        rotated_coords = self.get_rotated_coords(how_to_rotate)
+        # A esta rotación le comprobamos si entra,
+        # y sino usamos el siguiente test case
+        wall_kick_data = None
+        if self._figure_type == consts.TETROMINO_I:
+            wall_kick_data = consts.I_WALL_KICK_DATA[positions]
+        else:
+            wall_kick_data = consts.J_L_S_T_Z_WALL_KICK_DATA[positions]
+        for i in range(5):
+            candidates = self.apply_test_case_kick(
+                rotated_coords, wall_kick_data[i])
+            if self.are_coords_valid(candidates, terrain) is True:
+                # Rotate
+                # self._coords = candidates
+                return self.rotate(rotated_coords, clockwise)
+
+    def get_rotated_coords(self, how_to_rotate: Dict[str, int]):
+        coords = []
+        for i in range(len(self._coords)):
+            coords.append(relocate(self._coords[i], **how_to_rotate[i]))
+        return coords
+
+    def apply_test_case_kick(
+        self,
+        coords: List[Tuple[int, int]],
+        test_case_scalar: Tuple[int, int]
+    ) -> List[Tuple[int, int]]:
+        candidates = []
+        for i, coord in enumerate(coords):
+            candidates.append((coord[0] + test_case_scalar[1],
+                               coord[1] + test_case_scalar[0]))
+        return candidates
+
+    def are_coords_valid(
+        self,
+        coords: List[Tuple[int, int]],
+        terrain: List[List[int]]
+    ) -> bool:
+        for row, col in coords:
+            print("row", row, "and col", col)
+            if row < 0 or col < 0 or col >= settings.PLAYFIELD_WIDTH:
+                print('returning False')
+                return False
+            if not terrain.is_empty:
+                try:
+                    if terrain.items[settings.ROWS - row][col] != 0:
+                        return False
+                except IndexError:
+                    pass
+        return True
+
+    def rotate(
+        self,
+        coords: List[Tuple[int, int]],
+        clockwise: bool = True,
+    ) -> None:
+        self._coords = coords
+        if clockwise:
+            self._rotation += 1
+            if self._rotation > consts.DEGREES_270:
+                self._rotation = consts.DEGREES_0
+        else:
+            self._rotation -= 1
+            if self._rotation < consts.DEGREES_0:
+                self._rotation = consts.DEGREES_270
 
     def check_test_case_for_coords(
         self,
@@ -200,6 +260,7 @@ class Tetromino:
         terrain: Stack,
     ) -> bool:
         print("coords:", coords)
+
         row, col = coords
         # Is in the lowest row or there's a figure below
         if row < 0:

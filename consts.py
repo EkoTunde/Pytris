@@ -351,7 +351,7 @@ ROTATION_DATA = {
             {'up': 1, 'right': 0, 'down': 0, 'left': 1},
             {'up': 0, 'right': 0, 'down': 0, 'left': 0},
             {'up': 0, 'right': 1, 'down': 1, 'left': 0},
-            {'up': 0, 'right': 0, 'down': 2, 'left': 0}
+            {'up': 0, 'right': 2, 'down': 0, 'left': 0}
         ),
         (0, 3): (
             # ^ >  v  <
