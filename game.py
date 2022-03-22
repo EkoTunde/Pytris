@@ -145,10 +145,12 @@ class Game:
             self.queue.peek().move_down()
 
     def rotate_right(self):
-        self.queue.peek().rotate_clockwise()
+        self.queue.peek().attempt_rotate(True, self.stack)
+        # self.queue.peek().rotate_clockwise()
 
     def rotate_left(self):
-        self.queue.peek().rotate_counterclockwise()
+        self.queue.peek().attempt_rotate(False, self.stack)
+        # self.queue.peek().rotate_counterclockwise()
 
     def hold(self):
         pass
