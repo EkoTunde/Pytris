@@ -167,12 +167,13 @@ class Tetromino:
         else:
             wall_kick_data = consts.J_L_S_T_Z_WALL_KICK_DATA[positions]
         for i in range(5):
-            candidates = self.apply_test_case_kick(
+            candidates = self.test_case_kick_coords(
                 rotated_coords, wall_kick_data[i])
+            print(candidates)
             if self.are_coords_valid(candidates, terrain) is True:
                 # Rotate
                 # self._coords = candidates
-                return self.rotate(rotated_coords, clockwise)
+                return self.rotate(candidates, clockwise)
 
     def get_rotated_coords(self, how_to_rotate: Dict[str, int]):
         coords = []
@@ -180,15 +181,18 @@ class Tetromino:
             coords.append(relocate(self._coords[i], **how_to_rotate[i]))
         return coords
 
-    def apply_test_case_kick(
+    def test_case_kick_coords(
         self,
         coords: List[Tuple[int, int]],
         test_case_scalar: Tuple[int, int]
     ) -> List[Tuple[int, int]]:
         candidates = []
-        for i, coord in enumerate(coords):
-            candidates.append((coord[0] + test_case_scalar[1],
-                               coord[1] + test_case_scalar[0]))
+        for coord in coords:
+            row = coord[0] + test_case_scalar[1]
+            col = coord[1] + test_case_scalar[0]
+            print("coord to apply test case:", coord, "with scalara", test_case_scalar,
+                  "row is", row, "col is", col)
+            candidates.append((row, col))
         return candidates
 
     def are_coords_valid(
@@ -198,7 +202,7 @@ class Tetromino:
     ) -> bool:
         for row, col in coords:
             print("row", row, "and col", col)
-            if row < 0 or col < 0 or col >= settings.PLAYFIELD_WIDTH:
+            if row < 0 or col < 0 or col > settings.COLS-1:
                 print('returning False')
                 return False
             if not terrain.is_empty:
