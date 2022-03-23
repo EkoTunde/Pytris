@@ -6,11 +6,65 @@ TETROMINO_J = 5
 TETROMINO_L = 6
 TETROMINO_O = 7
 
+TETROMINOES_NAMES = {
+    1: "I",
+    2: "Z",
+    3: "S",
+    4: "T",
+    5: "J",
+    6: "L",
+    7: "O",
+}
 
 DEGREES_0 = 0
 DEGREES_90 = 1
 DEGREES_180 = 2
 DEGREES_270 = 3
+
+INITIAL_COORDS_DATA = {
+    TETROMINO_I: (
+        (0, 0),
+        (0, 1),
+        (0, 2),
+        (0, 3)
+    ),
+    TETROMINO_J: (
+        (1, 0),
+        (0, 0),
+        (0, 1),
+        (0, 2)
+    ),
+    TETROMINO_L: (
+        (0, 0),
+        (0, 1),
+        (0, 2),
+        (1, 2)
+    ),
+    TETROMINO_O: (
+        (1, 0),
+        (1, 1),
+        (0, 1),
+        (0, 0)
+    ),
+    TETROMINO_S: (
+        (0, 0),
+        (0, 1),
+        (1, 1),
+        (1, 2)
+    ),
+    TETROMINO_T: (
+        (0, 0),
+        (0, 1),
+        (0, 2),
+        (1, 1)
+    ),
+    TETROMINO_Z: (
+        (1, 0),
+        (1, 1),
+        (0, 1),
+        (0, 2)
+    ),
+}
 
 ROTATION_DATA = {
     TETROMINO_I: {

@@ -4,7 +4,7 @@ import pygame
 from randomizer import randint
 from tetrominoes import (Tetromino, TetrominoI, TetrominoJ, TetrominoL,
                          TetrominoO, TetrominoS, TetrominoT, TetrominoZ)
-from figures_queue import FiguresQueue
+from provider import Provider
 from screen import Screen
 from stack import Stack
 from utils import (will_collide_bellow, will_collide_left, will_collide_right)
@@ -13,6 +13,7 @@ from utils import (will_collide_bellow, will_collide_left, will_collide_right)
 class Game:
 
     def __init__(self, window: pygame.Surface) -> None:
+        self.start_time = 0
         self.pile = []
         self.board = []
         for _ in range(0, 10):
@@ -23,7 +24,6 @@ class Game:
         self.score = 0
         self.level = 1
         self.lines = 0
-        self.figure_playing = Tetromino(1)
         self.current_figure = None
         self.current_figure_type = None
         self.current_figure_x = settings.BOARD_X
@@ -37,7 +37,8 @@ class Game:
         self.last_placed_figure_y = 0
         self.last_elapsed_time = 0
         self.should_move = True
-        self.screen = Screen(window)
+        self._screen = Screen(window)
+        self.ticker = 0
         figures = []
         used_nums = []
         for _ in range(4):
@@ -45,8 +46,10 @@ class Game:
             fig = self.get_figure_by_consts(rand)()
             used_nums.append(rand)
             figures.append(fig)
-        self.queue = FiguresQueue(*figures)
-        self.stack = Stack()
+        # self._provider = Provider(*figures)
+        self._provider = Provider()
+        self._stack = Stack()
+        self._lock_counter = 0
 
     def get_figure_by_consts(
         self, const: int
@@ -86,23 +89,21 @@ class Game:
             pass
 
     def update(self, elapsed_time):
-        self.screen.draw(self.stack, self.queue)
+        # print(self._provider)
+        self._screen.draw(self._stack, self._provider)
+        self.ticker += 1
+        if self.ticker % (settings.GRAVITY*self.level) == 0:
+            self.__move_down()
+        if will_collide_bellow(self._stack, self._provider.peek().coords):
+            self._lock_counter += 1
+            if self._lock_counter == 30:
+                self.lock_and_add_to_stack()
 
-    def draw(self, win, elapsed_time):
-        # delay_fraction = settings.GAME_BASE_VELOCITY * settings.DELAY_UNIT
-        # delay = settings.INITIAL_DELAY - delay_fraction
-        # pygame.time.delay(delay)
-        self.should_move = (elapsed_time // 1000 >
-                            self.last_elapsed_time // 1000)
-        self.last_elapsed_time = elapsed_time
-        self.apply_changes()
-        self.draw_board(win)
-        # if self.current_figure is not None:
-        #     self.current_figure.draw(win, elapsed_time)
-        # self.draw_current_figure(win, elapsed_time)
-        # self.draw_score(win)
-        # self.draw_level(win)
-        # self.draw_lines(win)
+    def lock_and_add_to_stack(self):
+        self._lock_counter = 0
+        tetromino = self._provider.dequeue()
+        self._stack.add(coords=tetromino.coords,
+                        figure_type=tetromino.figure_type)
 
     def add_figure(self, figure):
         self.pile.append(figure)
@@ -114,15 +115,6 @@ class Game:
         else:
             self.current_figure = Tetromino(random_int)
 
-    def draw_current_figure(self, win, elapsed_time):
-        print(elapsed_time)
-        if elapsed_time // 1000 > self.last_placed_figure_y:
-            self.current_figure_y += settings.BASE_SQUARE_SIZE
-        self.last_placed_figure_y = elapsed_time // 1000
-        # Draw the next figure
-        coords = (self.current_figure_x, self.current_figure_y)
-        self.current_figure.draw(win, coords)
-
     def draw_score(self, win):
         pass
 
@@ -132,24 +124,46 @@ class Game:
     def draw_lines(self, win):
         pass
 
-    def move_left(self):
-        if not will_collide_left(self.stack, self.queue.peek().coords):
-            self.queue.peek().move_left()
+    def handle_user_input(self, event):
+        if event.key == pygame.K_UP or event.key == pygame.K_x:
+            self.__rotate_right()
+        if event.key == pygame.K_z:
+            self.__rotate_left()
+        if event.key == pygame.K_LEFT:
+            self.__move_left()
+        if event.key == pygame.K_RIGHT:
+            self.__move_right()
+        if event.key == pygame.K_DOWN:
+            self.__move_down()
 
-    def move_right(self):
-        if not will_collide_right(self.stack, self.queue.peek().coords):
-            self.queue.peek().move_right()
+    def __move_left(self):
+        self._lock_counter = 0
+        # if not will_collide_left(self._stack, self._provider.peek().coords):
+        #     self._provider.peek().move_left()
+        self._provider.peek().move_left(self._stack)
 
-    def move_down(self):
-        if not will_collide_bellow(self.stack, self.queue.peek().coords):
-            self.queue.peek().move_down()
+    def __move_right(self):
+        self._lock_counter = 0
+        # if not will_collide_right(self._stack, self._provider.peek().coords):
+        #     self._provider.peek().move_right()
+        self._provider.peek().move_right(self._stack)
 
-    def rotate_right(self):
-        self.queue.peek().attempt_rotate(True, self.stack)
+    def __move_down(self):
+        self._lock_counter = 0
+        # if not will_collide_bellow(self._stack, self._provider.peek().coords):
+        #     self._provider.peek().move_down()
+        self._provider.peek().move_down(self._stack)
+
+    def __rotate_right(self):
+        self._lock_counter = 0
+        self._provider.peek().attempt_rotate(
+            clockwise=True, terrain=self._stack)
         # self.queue.peek().rotate_clockwise()
 
-    def rotate_left(self):
-        self.queue.peek().attempt_rotate(False, self.stack)
+    def __rotate_left(self):
+        self._lock_counter = 0
+        self._provider.peek().attempt_rotate(
+            clockwise=False, terrain=self._stack)
         # self.queue.peek().rotate_counterclockwise()
 
     def hold(self):
@@ -170,24 +184,3 @@ class Game:
     def update_level(self):
         self.level += 1
         self.game_velocity += 5
-
-    # def get_first_available_row(self):
-    #     if self.stack.size < 19:
-    #         return settings.DEFAULT_AVAILABLE_ROW
-    #     if self.stack.size < 20:
-    #         return settings.DEFAULT_AVAILABLE_ROW+1
-    #     return settings.DEFAULT_AVAILABLE_ROW+2
-
-    # def draw_board(self, win):
-    #     # Draw a tetris board
-    #     pygame.draw.rect(win, settings.BOARD_BACKGROUND, (settings.BOARD_X,
-    #                      settings.BOARD_Y, settings.BOARD_WIDTH,
-    #                      settings.BOARD_HEIGHT))
-    #     for i in range(0, 10):
-    #         for j in range(0, 20):
-    #             pygame.draw.rect(win, settings.BACKGROUND, (
-    #                 (settings.BOARD_X + i * settings.BASE_SQUARE_SIZE) + 1,
-    #                 (settings.BOARD_Y + j * settings.BASE_SQUARE_SIZE) + 1,
-    #                 settings.BASE_SQUARE_SIZE-2,
-    #                 settings.BASE_SQUARE_SIZE-2),
-    #                 border_radius=2)

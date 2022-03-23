@@ -1,5 +1,5 @@
 import settings
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 
 class Stack():
@@ -23,57 +23,75 @@ class Stack():
 
     def add(
         self,
-        coord: Tuple[int, int],
-        figure_type: int
-    ) -> int:
+        coords: List[Tuple[int, int]],
+        figure_type: List[Tuple[int, int]],
+    ) -> bool:
         """
-        Adds a figure to the stack at given coords (row, col).
-
-        Args:
-            coord (Tuple[int, int]): The coords of the figure (i, j).
-            figure_type (int): The type of the figure.
+        Adds a figure to the stack at it's coords (row, col).
         """
-        self._items[coord[0]][coord[1]] = figure_type
+        for row, col in coords:
+            try:
+                if not self._has_row(row):
+                    self._items.append([0] * settings.COLS)
+                self._items[row][col] = figure_type
+            except IndexError:
+                print("INDEX ERROR")
+                return False
+        return True
 
-    def get_collisions(self, figure) -> Dict[str, bool]:
-        bellow, left, right = False, False, False
-        for row, col in figure.coords:
-            if not bellow:
-                bellow = self.will_collide_bellow(row, col)
-            if not left:
-                left = self.will_collide_left(row, col)
-            if not right:
-                right = self.will_collide_right(row, col)
-            if bellow and left and right:
-                break
-        return {
-            "bellow": bellow,
-            "left": left,
-            "right": right
-        }
+    def _has_row(self, row: int):
+        try:
+            if self.is_empty:
+                return False
+            return self.size > row
+        except IndexError:
+            return False
 
-    def will_collide_bellow(self, row, col) -> bool:
-        # Is in the lowest row
-        if row == settings.ROWS - 1:
-            return True
-        # There's a figure below
-        if self._items[settings.ROWS - row + 1][col] != 0:
-            return True
-        return False
+    # def has_col(self, row: int, col: int):
+    #     try:
+    #         return self._items[row][col] != -1
+    #     except IndexError:
+    #         return False
 
-    def will_collide_left(self, row, col) -> bool:
-        if col == 0:
-            return True
-        if self._items[row][settings.COLS + col - 1] != 0:
-            return True
-        return False
+    # def get_collisions(self, figure) -> Dict[str, bool]:
+    #     bellow, left, right = False, False, False
+    #     for row, col in figure.coords:
+    #         if not bellow:
+    #             bellow = self.will_collide_bellow(row, col)
+    #         if not left:
+    #             left = self.will_collide_left(row, col)
+    #         if not right:
+    #             right = self.will_collide_right(row, col)
+    #         if bellow and left and right:
+    #             break
+    #     return {
+    #         "bellow": bellow,
+    #         "left": left,
+    #         "right": right
+    #     }
 
-    def will_collide_right(self, row, col) -> bool:
-        if col == settings.COLS - 1:
-            return True
-        if self._items[row][settings.COLS + col + 1] != 0:
-            return True
-        return False
+    # def will_collide_bellow(self, row, col) -> bool:
+    #     # Is in the lowest row
+    #     if row == settings.ROWS - 1:
+    #         return True
+    #     # There's a figure below
+    #     if self._items[settings.ROWS - row + 1][col] != 0:
+    #         return True
+    #     return False
+
+    # def will_collide_left(self, row, col) -> bool:
+    #     if col == 0:
+    #         return True
+    #     if self._items[row][settings.COLS + col - 1] != 0:
+    #         return True
+    #     return False
+
+    # def will_collide_right(self, row, col) -> bool:
+    #     if col == settings.COLS - 1:
+    #         return True
+    #     if self._items[row][settings.COLS + col + 1] != 0:
+    #         return True
+    #     return False
 
     def clear_full_rows(self):
         for i in reversed(range(len(self))):

@@ -97,7 +97,6 @@ def will_collide_bellow(
     figure_coords: List[Tuple[int, int]]
 ) -> bool:
     for row, col in figure_coords:
-        # Is in the lowest row or there's a figure below
         if row == 0:
             return True
         if not stack.is_empty:

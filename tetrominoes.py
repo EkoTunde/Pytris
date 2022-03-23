@@ -20,7 +20,6 @@ class Tetromino:
                 and self._figure_type < 1
                 or self._figure_type > 7):
             raise ValueError("Figure type must be an integer between 1 and 7")
-        print("Implemented as figure {}".format(self._figure_type))
         self._asset = ASSETS.get(self._figure_type)
         self._coords = None
         self._rotation = consts.DEGREES_0
@@ -41,24 +40,52 @@ class Tetromino:
         return self._coords
 
     def get_initial_coords(self, row):
-        raise NotImplementedError(
-            "Please implement this method: get_initial_coords")
+        initial_coords = consts.INITIAL_COORDS_DATA.get(self._figure_type)
+        return [
+            (row + initial_coords[0][0],
+             self._initial_x + initial_coords[0][1]),
+            (row + initial_coords[1][0],
+             self._initial_x + initial_coords[1][1]),
+            (row + initial_coords[2][0],
+             self._initial_x + initial_coords[2][1]),
+            (row + initial_coords[3][0],
+             self._initial_x + initial_coords[3][1]),
+        ]
 
     @property
     def asset(self) -> pygame.Surface:
         return self._asset
 
-    def move_left(self) -> None:
-        for i, coord in enumerate(self._coords):
-            self._coords[i] = (coord[0], coord[1] - 1)
+    def move_left(self, terrain: List[List[int]] = None) -> None:
+        candidates = self.__get_moved_coords(left=1)
+        if self.are_coords_valid(candidates, terrain):
+            self._coords = candidates
+        # for i, coord in enumerate(self._coords):
+        #     self._coords[i] = (coord[0], coord[1] - 1)
 
-    def move_right(self) -> None:
-        for i, coord in enumerate(self._coords):
-            self._coords[i] = (coord[0], coord[1] + 1)
+    def move_right(self, terrain: List[List[int]]) -> None:
+        candidates = self.__get_moved_coords(right=1)
+        if self.are_coords_valid(candidates, terrain):
+            self._coords = candidates
+        # for i, coord in enumerate(self._coords):
+        #     self._coords[i] = (coord[0], coord[1] + 1)
 
-    def move_down(self) -> None:
-        for i, coord in enumerate(self._coords):
-            self._coords[i] = (coord[0] - 1, coord[1])
+    def move_down(self, terrain: List[List[int]]) -> None:
+        candidates = self.__get_moved_coords(down=1)
+        if self.are_coords_valid(candidates, terrain):
+            self._coords = candidates
+        # for i, coord in enumerate(self._coords):
+        #     self._coords[i] = (coord[0] - 1, coord[1])
+
+    def __get_moved_coords(
+        self, down=0, left=0, right=0
+    ) -> List[Tuple[int, int]]:
+        coords = []
+        for coord in self._coords:
+            coords.append((coord[0] - down, coord[1] - left + right))
+        # for coord in self._coords:
+        #     coords.append(relocate(coord, down=down, left=left, right=right))
+        return coords
 
     def __update_rotation(self, decrease: bool = False) -> None:
         if decrease:
@@ -159,8 +186,7 @@ class Tetromino:
         if how_to_rotate is None:
             return
         rotated_coords = self.get_rotated_coords(how_to_rotate)
-        # A esta rotación le comprobamos si entra,
-        # y sino usamos el siguiente test case
+
         wall_kick_data = None
         if self._figure_type == consts.TETROMINO_I:
             wall_kick_data = consts.I_WALL_KICK_DATA[positions]
@@ -169,7 +195,6 @@ class Tetromino:
         for i in range(5):
             candidates = self.test_case_kick_coords(
                 rotated_coords, wall_kick_data[i])
-            print(candidates)
             if self.are_coords_valid(candidates, terrain) is True:
                 # Rotate
                 # self._coords = candidates
@@ -190,8 +215,6 @@ class Tetromino:
         for coord in coords:
             row = coord[0] + test_case_scalar[1]
             col = coord[1] + test_case_scalar[0]
-            print("coord to apply test case:", coord, "with scalara", test_case_scalar,
-                  "row is", row, "col is", col)
             candidates.append((row, col))
         return candidates
 
@@ -278,6 +301,9 @@ class Tetromino:
             except IndexError:
                 pass
         return True
+
+    def __str__(self):
+        return consts.TETROMINOES_NAMES[self._figure_type]
 
 
 class TetrominoI(Tetromino):

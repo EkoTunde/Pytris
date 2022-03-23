@@ -1,7 +1,7 @@
 import pygame
 from assets import ASSETS
 from tetrominoes import Tetromino
-from figures_queue import FiguresQueue
+from provider import Provider
 import settings
 from stack import Stack
 
@@ -20,16 +20,16 @@ class Screen:
     def draw(
         self,
         stack: Stack = None,
-        queue: FiguresQueue = None,
+        provider: Provider = None,
         first_available_row: int = settings.DEFAULT_AVAILABLE_ROW
     ) -> None:
         self.win.fill(settings.BACKGROUND)
         self.draw_playfield()
         if stack:
             self.draw_stack(stack)
-        if queue:
-            figure = queue.peek()
-            self.draw_figure(figure, first_available_row)
+        if provider:
+            tetromino = provider.peek()
+            self.draw_figure(tetromino, first_available_row)
         pygame.display.update()
 
     def draw_playfield(self):
@@ -50,12 +50,10 @@ class Screen:
         for i in range(0, stack.size):
             for j in range(0, settings.COLS):
                 if stack.items[i][j] != 0:
-                    self.win.blit(
-                        ASSETS[stack.items[i][j]],
-                        (settings.BOARD_X + j * settings.BASE_SQUARE_SIZE),
-                        (settings.BOARD_Y + (settings.ROWS - i)
-                         * settings.BASE_SQUARE_SIZE)
-                    )
+                    x = settings.BOARD_X + j * settings.BASE_SQUARE_SIZE
+                    y = settings.BOARD_Y + (settings.ROWS - i-1) * \
+                        settings.BASE_SQUARE_SIZE
+                    self.win.blit(ASSETS[stack.items[i][j]], (x, y))
 
     def draw_figure(self, figure: Tetromino, first_available_row: int):
         if figure.coords is None:
