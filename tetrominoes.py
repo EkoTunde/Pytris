@@ -190,8 +190,6 @@ class Tetromino:
         for coord in coords:
             row = coord[0] + test_case_scalar[1]
             col = coord[1] + test_case_scalar[0]
-            print("coord to apply test case:", coord, "with scalara", test_case_scalar,
-                  "row is", row, "col is", col)
             candidates.append((row, col))
         return candidates
 
