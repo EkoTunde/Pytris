@@ -18,7 +18,7 @@ class Provider:
                     self.enqueue(tetromino)
 
     def __refill(self):
-        tetrominoes = [1, 2, 3, 4, 5, 6, 7]
+        tetrominoes = [1, 2, 3, 4, 5, 6, 7].copy()
         shuffle(tetrominoes)
         for tetromino in tetrominoes:
             self.enqueue(Tetromino(tetromino))
@@ -30,23 +30,23 @@ class Provider:
         return len(self._items) == 4
 
     def enqueue(self, tetromino: Tetromino) -> None:
-        self._items.insert(0, tetromino)
+        self._items.append(tetromino)
 
     def dequeue(self) -> Union[Tetromino, None]:
         if self.is_empty() or self.__needs_refill():
             self.__refill()
-        return self._items.pop()
+        return self._items.pop(0)
 
     def size(self) -> int:
         return len(self._items)
 
     def peek(self) -> Tetromino:
-        return self._items[-1]
+        return self._items[0]
 
     def get_next(
         self, n: int
     ) -> List[Tetromino]:
-        return self._items[-n-1:-1]
+        return self._items[1:n+1]
 
     def __str__(self):
         if self.is_empty():

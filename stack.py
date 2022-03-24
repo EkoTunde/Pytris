@@ -5,7 +5,7 @@ from typing import List, Tuple
 class Stack():
 
     def __init__(self, *args):
-        self._items = []
+        self._items = [[0] * settings.COLS] * settings.ROWS
 
     @property
     def items(self) -> list:
@@ -30,13 +30,13 @@ class Stack():
         Adds a figure to the stack at it's coords (row, col).
         """
         for row, col in coords:
-            try:
-                if not self._has_row(row):
-                    self._items.append([0] * settings.COLS)
-                self._items[row][col] = figure_type
-            except IndexError:
-                print("INDEX ERROR")
-                return False
+            self._items[row][col] = figure_type
+            # try:
+            #     if not self._has_row(row):
+            #         self._items.append([0] * settings.COLS)
+            # except IndexError:
+            #     print("INDEX ERROR")
+            #     return False
         return True
 
     def _has_row(self, row: int):

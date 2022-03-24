@@ -96,6 +96,8 @@ def will_collide_bellow(
     stack: Stack,
     figure_coords: List[Tuple[int, int]]
 ) -> bool:
+    if figure_coords is None:
+        return False
     for row, col in figure_coords:
         if row == 0:
             return True

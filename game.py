@@ -7,7 +7,7 @@ from tetrominoes import (Tetromino, TetrominoI, TetrominoJ, TetrominoL,
 from provider import Provider
 from screen import Screen
 from stack import Stack
-from utils import (will_collide_bellow, will_collide_left, will_collide_right)
+from utils import will_collide_bellow
 
 
 class Game:
@@ -38,7 +38,7 @@ class Game:
         self.last_elapsed_time = 0
         self.should_move = True
         self._screen = Screen(window)
-        self.ticker = 0
+        self._ticker = 0
         figures = []
         used_nums = []
         for _ in range(4):
@@ -90,14 +90,15 @@ class Game:
 
     def update(self, elapsed_time):
         # print(self._provider)
-        self._screen.draw(self._stack, self._provider)
-        self.ticker += 1
-        if self.ticker % (settings.GRAVITY*self.level) == 0:
-            self.__move_down()
+        self._ticker += 1
+        self._lock_counter += 1
         if will_collide_bellow(self._stack, self._provider.peek().coords):
-            self._lock_counter += 1
-            if self._lock_counter == 30:
+            if self._lock_counter == settings.FPS / 2:
                 self.lock_and_add_to_stack()
+        else:
+            if self._ticker % (settings.GRAVITY*self.level) == 0:
+                self.__move_down()
+        self._screen.draw(self._stack, self._provider)
 
     def lock_and_add_to_stack(self):
         self._lock_counter = 0
@@ -150,7 +151,8 @@ class Game:
 
     def __move_down(self):
         self._lock_counter = 0
-        # if not will_collide_bellow(self._stack, self._provider.peek().coords):
+        # if not will_collide_bellow(self._stack,
+        #       self._provider.peek().coords):
         #     self._provider.peek().move_down()
         self._provider.peek().move_down(self._stack)
 
