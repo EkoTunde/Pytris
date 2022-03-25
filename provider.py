@@ -23,6 +23,9 @@ class Provider:
         for tetromino in tetrominoes:
             self.enqueue(Tetromino(tetromino))
 
+    def start(self, first_available_row: int):
+        self._items[0].please_get_coords(first_available_row)
+
     def is_empty(self) -> bool:
         return self._items == []
 

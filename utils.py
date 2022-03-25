@@ -2,6 +2,7 @@ from typing import List, Tuple
 import consts
 import settings
 from stack import Stack
+from tetrominoes import Tetromino
 
 
 def get_initial_coords(
@@ -236,3 +237,63 @@ def rotate_figure_z(
         D = (D[0]-1, D[1])
     coords = [A, B, C, D]
     return coords
+
+
+def can_move_down(tetromino: Tetromino, stack: Stack) -> bool:
+    """
+    Check if tetromino can move down.
+    """
+    if tetromino is None:
+        raise ValueError("Tetromino is None.")
+    if stack is None:
+        raise ValueError("Stack is None.")
+    for row, col in tetromino.coords:
+        if row == 0:
+            return False
+        if not stack.is_empty:
+            try:
+                if stack.items[settings.ROWS - row - 1][col] != 0:
+                    return False
+            except IndexError:
+                pass
+    return True
+
+
+def can_move_left(tetromino: Tetromino, stack: Stack) -> bool:
+    """
+    Check if tetromino can move left.
+    """
+    if tetromino is None:
+        raise ValueError("Tetromino is None.")
+    if stack is None:
+        raise ValueError("Stack is None.")
+    for row, col in tetromino.coords:
+        if col == 0:
+            return False
+        if not stack.is_empty:
+            try:
+                if stack.items[settings.ROWS - row][col - 1] != 0:
+                    return False
+            except IndexError:
+                pass
+    return True
+
+
+def can_move_right(tetromino: Tetromino, stack: Stack) -> bool:
+    """
+    Check if tetromino can move right.
+    """
+    if tetromino is None:
+        raise ValueError("Tetromino is None.")
+    if stack is None:
+        raise ValueError("Stack is None.")
+    for row, col in tetromino.coords:
+        if col == settings.COLS - 1:
+            return False
+        if not stack.is_empty:
+            try:
+                if stack.items[settings.ROWS - row][col + 1] != 0:
+                    return False
+            except IndexError:
+                pass
+    return True

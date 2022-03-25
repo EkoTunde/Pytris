@@ -7,7 +7,8 @@ from tetrominoes import (Tetromino, TetrominoI, TetrominoJ, TetrominoL,
 from provider import Provider
 from screen import Screen
 from stack import Stack
-from utils import will_collide_bellow
+from utils import (
+    can_move_down, can_move_left, can_move_right, will_collide_bellow)
 
 
 class Game:
@@ -39,17 +40,19 @@ class Game:
         self.should_move = True
         self._screen = Screen(window)
         self._ticker = 0
-        figures = []
-        used_nums = []
-        for _ in range(4):
-            rand = randint(1, 7, *figures)
-            fig = self.get_figure_by_consts(rand)()
-            used_nums.append(rand)
-            figures.append(fig)
+        # figures = []
+        # used_nums = []
+        # for _ in range(4):
+        #     rand = randint(1, 7, *figures)
+        #     fig = self.get_figure_by_consts(rand)()
+        #     used_nums.append(rand)
+        #     figures.append(fig)
         # self._provider = Provider(*figures)
         self._provider = Provider()
         self._stack = Stack()
         self._lock_counter = 0
+        self._first_available_row = settings.DEFAULT_AVAILABLE_ROW
+        self._provider.start(self._first_available_row)
 
     def get_figure_by_consts(
         self, const: int
@@ -90,21 +93,26 @@ class Game:
 
     def update(self, elapsed_time):
         # print(self._provider)
+        if self._ticker > 0:
+            if not can_move_down(self._provider.peek(), self._stack):
+                self._lock_counter += 1
+                if self._lock_counter == 30:
+                    self.__lock()
+                    self._lock_counter = 0
+            else:
+                if self._ticker % (settings.GRAVITY*self.level) == 0:
+                    self.move_down()
         self._ticker += 1
-        self._lock_counter += 1
-        if will_collide_bellow(self._stack, self._provider.peek().coords):
-            if self._lock_counter == settings.FPS / 2:
-                self.lock_and_add_to_stack()
-        else:
-            if self._ticker % (settings.GRAVITY*self.level) == 0:
-                self.__move_down()
-        self._screen.draw(self._stack, self._provider)
+        self._screen.draw(
+            self._stack, self._provider, self._first_available_row)
 
-    def lock_and_add_to_stack(self):
-        self._lock_counter = 0
+    def __lock(self):
         tetromino = self._provider.dequeue()
-        self._stack.add(coords=tetromino.coords,
-                        figure_type=tetromino.figure_type)
+        self._first_available_row = self._stack.add(
+            coords=tetromino.coords,
+            figure_type=tetromino.figure_type)
+        print(self._stack)
+        # raise RuntimeError("Lock")
 
     def add_figure(self, figure):
         self.pile.append(figure)
@@ -126,28 +134,48 @@ class Game:
         pass
 
     def handle_user_input(self, event):
+        if self._provider.peek().coords is None:
+            return
         if event.key == pygame.K_UP or event.key == pygame.K_x:
             self.__rotate_right()
         if event.key == pygame.K_z:
             self.__rotate_left()
         if event.key == pygame.K_LEFT:
-            self.__move_left()
+            self.move_left()
         if event.key == pygame.K_RIGHT:
-            self.__move_right()
+            self.move_right()
         if event.key == pygame.K_DOWN:
-            self.__move_down()
+            self.move_down()
+
+    def move_left(self):
+        if can_move_left(self._provider.peek(), self._stack):
+            self._lock_counter = 0
+            self._provider.peek().move_left()
+
+    def move_right(self):
+        if can_move_right(self._provider.peek(), self._stack):
+            self._lock_counter = 0
+            self._provider.peek().move_right()
+
+    def move_down(self):
+        if can_move_down(self._provider.peek(), self._stack):
+            print("move down")
+            self._lock_counter = 0
+            self._provider.peek().move_down()
 
     def __move_left(self):
-        self._lock_counter = 0
+        if can_move_left(self._provider.peek(), self._stack):
+            self._lock_counter = 0
+            self._provider.peek().move_left(self._stack)
         # if not will_collide_left(self._stack, self._provider.peek().coords):
         #     self._provider.peek().move_left()
-        self._provider.peek().move_left(self._stack)
 
     def __move_right(self):
-        self._lock_counter = 0
+        if can_move_right(self._provider.peek(), self._stack):
+            self._lock_counter = 0
+            self._provider.peek().move_right(self._stack)
         # if not will_collide_right(self._stack, self._provider.peek().coords):
         #     self._provider.peek().move_right()
-        self._provider.peek().move_right(self._stack)
 
     def __move_down(self):
         self._lock_counter = 0

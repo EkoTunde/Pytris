@@ -5,8 +5,28 @@ import settings
 from assets import ASSETS
 from typing import Dict, List, Tuple, Union
 from stack import Stack
-from utils import relocate, rotate_coord_by_kick
-# , get_initial_coords, rotate_figure_i, rotate_figure_z
+
+
+def relocate(
+    coords: Tuple[int, int],
+    up=0,
+    right=0,
+    down=0,
+    left=0,
+) -> Tuple[int, int]:
+    """Returns a new Tuple with the coordinates relocated."""
+    return (coords[0] + up - down, coords[1] + right - left)
+
+
+def rotate_coord_by_kick(
+    coord: Tuple[int, int],
+    kick: Tuple[int, int]
+) -> Tuple[int, int]:
+    """
+    Returns a new Tuple with the coordinates rotated by kick.
+    """
+    horizontal, vertical = kick[0], kick[1]
+    return (coord[0] + vertical, coord[1] + horizontal)
 
 
 class Tetromino:
@@ -32,7 +52,7 @@ class Tetromino:
         return self._figure_type
 
     @property
-    def coords(self) -> List[Tuple[int, int]]:
+    def coords(self) -> Union[List[Tuple[int, int]], None]:
         return self._coords
 
     def please_get_coords(self, row) -> List[Tuple[int, int]]:
@@ -56,24 +76,27 @@ class Tetromino:
     def asset(self) -> pygame.Surface:
         return self._asset
 
-    def move_left(self, terrain: List[List[int]] = None) -> None:
-        candidates = self.__get_moved_coords(left=1)
-        if self.are_coords_valid(candidates, terrain):
-            self._coords = candidates
+    def move_left(self) -> None:  # , terrain: List[List[int]] = None) -> None:
+        # candidates = self.__get_moved_coords(left=1)
+        # if self.are_coords_valid(candidates, terrain):
+        #     self._coords = candidates
+        self._coords = self.__get_moved_coords(left=1)
         # for i, coord in enumerate(self._coords):
         #     self._coords[i] = (coord[0], coord[1] - 1)
 
-    def move_right(self, terrain: List[List[int]]) -> None:
-        candidates = self.__get_moved_coords(right=1)
-        if self.are_coords_valid(candidates, terrain):
-            self._coords = candidates
+    def move_right(self) -> None:  # , terrain: List[List[int]]) -> None:
+        self._coords = self.__get_moved_coords(right=1)
+        # candidates = self.__get_moved_coords(right=1)
+        # if self.are_coords_valid(candidates, terrain):
+        #     self._coords = candidates
         # for i, coord in enumerate(self._coords):
         #     self._coords[i] = (coord[0], coord[1] + 1)
 
-    def move_down(self, terrain: List[List[int]]) -> None:
-        candidates = self.__get_moved_coords(down=1)
-        if self.are_coords_valid(candidates, terrain):
-            self._coords = candidates
+    def move_down(self) -> None:  # , terrain: List[List[int]]) -> None:
+        self._coords = self.__get_moved_coords(down=1)
+        # candidates = self.__get_moved_coords(down=1)
+        # if self.are_coords_valid(candidates, terrain):
+        #     self._coords = candidates
         # for i, coord in enumerate(self._coords):
         #     self._coords[i] = (coord[0] - 1, coord[1])
 

@@ -1,3 +1,4 @@
+import os
 import pygame
 from assets import ASSETS
 from tetrominoes import Tetromino
@@ -47,6 +48,8 @@ class Screen:
                     border_radius=2)
 
     def draw_stack(self, stack: Stack):
+        os.system('cls')
+        print(stack)
         for i in range(0, stack.size):
             for j in range(0, settings.COLS):
                 if stack.items[i][j] != 0:

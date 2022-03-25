@@ -5,7 +5,34 @@ from typing import List, Tuple
 class Stack():
 
     def __init__(self, *args):
-        self._items = [[0] * settings.COLS] * settings.ROWS
+        self._items = [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ]
 
     @property
     def items(self) -> list:
@@ -25,19 +52,25 @@ class Stack():
         self,
         coords: List[Tuple[int, int]],
         figure_type: List[Tuple[int, int]],
-    ) -> bool:
+    ) -> int:
         """
         Adds a figure to the stack at it's coords (row, col).
+
+        Returns first available row from 19 and on.
         """
+        # print(self._items)
         for row, col in coords:
-            self._items[row][col] = figure_type
-            # try:
-            #     if not self._has_row(row):
-            #         self._items.append([0] * settings.COLS)
-            # except IndexError:
-            #     print("INDEX ERROR")
-            #     return False
-        return True
+            # print("row", row, "and col", col)
+            # if row == 0:
+            #     print("debug")
+            try:
+                # if not self._has_row(row):
+                #     self._items.append([0] * settings.COLS)
+                self._items[row][col] = figure_type
+            except IndexError:
+                # print("INDEX ERROR")
+                return False
+        return settings.DEFAULT_AVAILABLE_ROW
 
     def _has_row(self, row: int):
         try:
@@ -46,52 +79,6 @@ class Stack():
             return self.size > row
         except IndexError:
             return False
-
-    # def has_col(self, row: int, col: int):
-    #     try:
-    #         return self._items[row][col] != -1
-    #     except IndexError:
-    #         return False
-
-    # def get_collisions(self, figure) -> Dict[str, bool]:
-    #     bellow, left, right = False, False, False
-    #     for row, col in figure.coords:
-    #         if not bellow:
-    #             bellow = self.will_collide_bellow(row, col)
-    #         if not left:
-    #             left = self.will_collide_left(row, col)
-    #         if not right:
-    #             right = self.will_collide_right(row, col)
-    #         if bellow and left and right:
-    #             break
-    #     return {
-    #         "bellow": bellow,
-    #         "left": left,
-    #         "right": right
-    #     }
-
-    # def will_collide_bellow(self, row, col) -> bool:
-    #     # Is in the lowest row
-    #     if row == settings.ROWS - 1:
-    #         return True
-    #     # There's a figure below
-    #     if self._items[settings.ROWS - row + 1][col] != 0:
-    #         return True
-    #     return False
-
-    # def will_collide_left(self, row, col) -> bool:
-    #     if col == 0:
-    #         return True
-    #     if self._items[row][settings.COLS + col - 1] != 0:
-    #         return True
-    #     return False
-
-    # def will_collide_right(self, row, col) -> bool:
-    #     if col == settings.COLS - 1:
-    #         return True
-    #     if self._items[row][settings.COLS + col + 1] != 0:
-    #         return True
-    #     return False
 
     def clear_full_rows(self):
         for i in reversed(range(len(self))):
@@ -113,7 +100,13 @@ class Stack():
     def is_empty(self):
         return len(self._items) == 0
 
+    def __str__(self):
+        s = ""
+        for i, row in enumerate(reversed(self._items)):
+            s += str(len(self._items) - 1 - i).zfill(2) + row.__str__() + "\n"
+        return s
+
 
 if __name__ == '__main__':
     stack = Stack()
-    print(stack)
+    # print(stack)
