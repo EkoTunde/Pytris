@@ -17,6 +17,7 @@ class Screen:
         self.score = 0
         self.level = 1
         self.lines = 0
+        self._font = pygame.font.Font(pygame.font.get_default_font(), 16)
 
     def draw(
         self,
@@ -27,6 +28,7 @@ class Screen:
         if is_paused is False:
             self.win.fill(settings.BACKGROUND)
             self.draw_playfield()
+            self.draw_preview_field()
             if grid:
                 self.draw_grid(grid)
             if provider:
@@ -37,13 +39,13 @@ class Screen:
     def draw_playfield(self):
         # Draw a tetris board
         pygame.draw.rect(self.win, settings.PLAYFIELD_BACKGROUND,
-                         (settings.BOARD_X, settings.BOARD_Y,
+                         (settings.PLAYFIELD_X, settings.PLAYFIELD_Y,
                           settings.PLAYFIELD_WIDTH, settings.PLAYFIELD_HEIGHT))
-        for i in range(0, 10):
-            for j in range(0, 20):
+        for i in range(settings.COLS):
+            for j in range(settings.ROWS):
                 pygame.draw.rect(self.win, settings.BACKGROUND, (
-                    settings.BOARD_X + i * settings.BASE_SQUARE_SIZE + 1,
-                    settings.BOARD_Y + j * settings.BASE_SQUARE_SIZE + 1,
+                    settings.PLAYFIELD_X + i * settings.BASE_SQUARE_SIZE + 1,
+                    settings.PLAYFIELD_Y + j * settings.BASE_SQUARE_SIZE + 1,
                     settings.BASE_SQUARE_SIZE-2,
                     settings.BASE_SQUARE_SIZE-2),
                     border_radius=2)
@@ -54,8 +56,8 @@ class Screen:
         for i in range(0, grid.size):
             for j in range(0, settings.COLS):
                 if grid.items[i][j] != 0:
-                    x = settings.BOARD_X + j * settings.BASE_SQUARE_SIZE
-                    y = settings.BOARD_Y + (settings.ROWS - i-1) * \
+                    x = settings.PLAYFIELD_X + j * settings.BASE_SQUARE_SIZE
+                    y = settings.PLAYFIELD_Y + (settings.ROWS - i-1) * \
                         settings.BASE_SQUARE_SIZE
                     self.win.blit(ASSETS[grid.items[i][j]], (x, y))
 
@@ -64,7 +66,28 @@ class Screen:
             tetromino.coords = calc_initial_coords(tetromino, grid)
         for row, col in tetromino.coords:
             # print("row is", row, " and col is", col)
-            x = settings.BOARD_X + col*settings.BASE_SQUARE_SIZE
-            y = settings.BOARD_Y + (settings.ROWS - 1 - row) * \
+            x = settings.PLAYFIELD_X + col*settings.BASE_SQUARE_SIZE
+            y = settings.PLAYFIELD_Y + (settings.ROWS - 1 - row) * \
                 settings.BASE_SQUARE_SIZE
             self.win.blit(tetromino.asset, (x, y))
+
+    def draw_preview_field(self):
+        shifted_x = settings.PLAYFIELD_X + settings.PLAYFIELD_WIDTH
+        padding_horizontal = settings.BASE_SQUARE_SIZE * 2
+        margin_top = settings.BASE_SQUARE_SIZE
+        x = shifted_x + padding_horizontal
+        y = settings.PLAYFIELD_Y + margin_top
+        width = ((settings.PLAYFIELD_WIDTH / settings.COLS) * 6)
+        height = settings.PLAYFIELD_HEIGHT / 2
+        title = self._font.render('Some Text', False, (255, 255, 255))
+        self.win.blit(title, (x, settings.PLAYFIELD_Y))
+        pygame.draw.rect(
+            self.win, settings.PLAYFIELD_BACKGROUND, (x, y, width, height))
+        for i in range(settings.PREVIEW_COLS):
+            for j in range(settings.PREVIEW_ROWS):
+                pygame.draw.rect(self.win, settings.BACKGROUND, (
+                    x + i * settings.BASE_SQUARE_SIZE + 1,
+                    y + j * settings.BASE_SQUARE_SIZE + 1,
+                    settings.BASE_SQUARE_SIZE-2,
+                    settings.BASE_SQUARE_SIZE-2),
+                    border_radius=2)
