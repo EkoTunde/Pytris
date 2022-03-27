@@ -19,7 +19,7 @@ class Provider:
                 if isinstance(tetromino, Tetromino):
                     self.enqueue(tetromino)
 
-    def start(self, coords):
+    def load(self, coords):
         self.peek().coords = coords
 
     def __refill(self):
@@ -52,6 +52,11 @@ class Provider:
         self, n: int
     ) -> List[Tetromino]:
         return self._items[1:n+1]
+
+    def replace_first(self, tetromino: Tetromino) -> Tetromino:
+        to_replace = self.dequeue()
+        self._items.insert(0, tetromino)
+        return to_replace
 
     def __str__(self):
         if self.is_empty():

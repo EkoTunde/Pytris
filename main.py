@@ -8,9 +8,10 @@ def main():
     WIN = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
     pygame.display.set_caption(settings.CAPTION)
     pygame.font.init()
+    FONT = pygame.font.Font(pygame.font.get_default_font(), 16)
     clock = pygame.time.Clock()
     run = True
-    tetrion = Tetrion(WIN)
+    tetrion = Tetrion(WIN, FONT)
     while run:
         clock.tick(settings.FPS)
         for event in pygame.event.get():
@@ -19,7 +20,7 @@ def main():
             if event.type == pygame.KEYDOWN:
                 key = event.key
                 if key == pygame.K_r:
-                    tetrion = Tetrion(WIN)
+                    tetrion = Tetrion(WIN, FONT)
                 if key == pygame.K_UP or key == pygame.K_x:
                     tetrion.add_action(consts.ROTATE_RIGHT)
                 if key == pygame.K_z:

@@ -9,7 +9,7 @@ from utils.coords import calc_initial_coords
 
 class Screen:
 
-    def __init__(self, window: pygame.Surface):
+    def __init__(self, window: pygame.Surface, font: pygame.font.Font):
         self.win = window
         self.current_figure = None
         self.next_figure = None
@@ -17,13 +17,24 @@ class Screen:
         self.score = 0
         self.level = 1
         self.lines = 0
-        self._font = pygame.font.Font(pygame.font.get_default_font(), 16)
+        self._font = font
+        self.cache = {
+            'score_title': self._font.render(
+                'Score', False, (255, 255, 255)),
+            'level_title': self._font.render(
+                'Level', False, (255, 255, 255)),
+            'lines_title': self._font.render(
+                'Lines', False, (255, 255, 255)),
+            'next_title': self._font.render(
+                'Next', False, (255, 255, 255)),
+        }
 
     def draw(
         self,
         grid: Grid = None,
         provider: Provider = None,
         is_paused: bool = False,
+        on_hold: Tetromino = None,
     ) -> None:
         if is_paused is False:
             self.win.fill(settings.BACKGROUND)
@@ -34,6 +45,9 @@ class Screen:
             if provider:
                 tetromino = provider.peek()
                 self.draw_tetromino(tetromino, grid)
+            self.draw_hold_field()
+            if on_hold:
+                self.draw_tetromino_on_hold(on_hold)
         pygame.display.update()
 
     def draw_playfield(self):
@@ -91,3 +105,33 @@ class Screen:
                     settings.BASE_SQUARE_SIZE-2,
                     settings.BASE_SQUARE_SIZE-2),
                     border_radius=2)
+
+    def draw_hold_field(self) -> None:
+        padding_horizontal = settings.BASE_SQUARE_SIZE * 2
+        width = ((settings.PLAYFIELD_WIDTH / settings.COLS) * 6)
+        height = (settings.PLAYFIELD_HEIGHT / 20) * 4
+        shifted_x = settings.PLAYFIELD_X - width
+        x = shifted_x - padding_horizontal
+        y = settings.PLAYFIELD_Y + settings.BASE_SQUARE_SIZE
+        pygame.draw.rect(
+            self.win, settings.PLAYFIELD_BACKGROUND, (x, y, width, height))
+        for i in range(settings.ON_HOLD_COLS):
+            for j in range(settings.ON_HOLD_ROWS):
+                pygame.draw.rect(self.win, settings.BACKGROUND, (
+                    x + i * settings.BASE_SQUARE_SIZE + 1,
+                    y + j * settings.BASE_SQUARE_SIZE + 1,
+                    settings.BASE_SQUARE_SIZE-2,
+                    settings.BASE_SQUARE_SIZE-2),
+                    border_radius=2)
+
+    def draw_tetromino_on_hold(self, tetromino: Tetromino) -> None:
+        padding_horizontal = settings.BASE_SQUARE_SIZE * 2
+        width = ((settings.PLAYFIELD_WIDTH / settings.COLS) * 6)
+        shifted_x = settings.PLAYFIELD_X - width
+        field_x = shifted_x - padding_horizontal
+        field_y = settings.PLAYFIELD_Y + settings.BASE_SQUARE_SIZE
+        for row, col in tetromino.coords:
+            x = (field_x + col * settings.BASE_SQUARE_SIZE) - \
+                settings.BASE_SQUARE_SIZE * 2
+            y = field_y + (settings.ROWS - row) * settings.BASE_SQUARE_SIZE
+            self.win.blit(tetromino.asset, (x, y))

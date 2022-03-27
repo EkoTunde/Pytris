@@ -336,7 +336,6 @@ class Tetromino:
 
     @coords.setter
     def coords(self, value):
-        # print("setting coords", value, "with type", type(value))
         msg = "Coords must be a list of tuples of row and col ints"
         error = TypeError(msg)
         if not isinstance(value, list):

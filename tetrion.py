@@ -18,20 +18,23 @@ from utils.rotation import (
 
 class Tetrion:
 
-    def __init__(self, window: pygame.Surface) -> None:
+    def __init__(self, window: pygame.Surface, font: pygame.font.Font) -> None:
         self.score = 0
         self.level = 1
         self.lines = 0
         self._is_paused = False
-        self._screen = Screen(window)
+        self._screen = Screen(window, font)
         self._ticker = 0
         self._grid = Grid()
         self._lock_counter = 0
         self._first_available_row = settings.DEFAULT_AVAILABLE_ROW
         self._provider = Provider()
         initial_coords = calc_initial_coords(self._provider.peek(), self._grid)
-        self._provider.start(initial_coords)
+        self._provider.load(initial_coords)
         self._actions = []
+        self._on_hold = None
+        self._can_hold = True
+        self._is_droping = False
 
     def add_action(self, key: int):
         """
@@ -46,26 +49,38 @@ class Tetrion:
         self
     ) -> bool:
         actionables = {
-            consts.ROTATE_RIGHT: get_rotate_right_coords,
-            consts.ROTATE_LEFT: get_rotate_left_coords,
-            consts.MOVE_RIGHT: get_move_right_coords,
-            consts.MOVE_LEFT: get_move_left_coords,
-            consts.MOVE_DOWN: get_move_down_coords,
+            consts.HOLD: {
+                "callable": self.__hold, "needs_args": False},
+            consts.DROP: {
+                "callable": self.__drop, "needs_args": False},
+            consts.ROTATE_RIGHT: {
+                "callable": get_rotate_right_coords, "needs_args": True},
+            consts.ROTATE_LEFT: {
+                "callable": get_rotate_left_coords, "needs_args": True},
+            consts.MOVE_RIGHT: {
+                "callable": get_move_right_coords, "needs_args": True},
+            consts.MOVE_LEFT: {
+                "callable": get_move_left_coords, "needs_args": True},
+            consts.MOVE_DOWN: {
+                "callable": get_move_down_coords, "needs_args": True},
         }
         for i, action in reversed(list(enumerate(self._actions))):
-            new_coords = actionables[action](
-                self._provider.peek(), self._grid)
-            if new_coords is not None:
-                self._provider.peek().coords = new_coords
-                # current_rotation = self._provider.peek().rotation
-                if action == consts.ROTATE_RIGHT:
-                    # self._provider.peek().rotation = current_rotation + 1
-                    self._provider.peek().rotate_right()
-                if action == consts.ROTATE_LEFT:
-                    # self._provider.peek().rotation = current_rotation - 1
-                    self._provider.peek().rotate_left()
-                if action != consts.MOVE_DOWN:
-                    self._lock_counter = 0
+            if actionables[action]["needs_args"]:
+                new_coords = actionables[action]["callable"](
+                    self._provider.peek(), self._grid)
+                if new_coords is not None:
+                    self._provider.peek().coords = new_coords
+                    # current_rotation = self._provider.peek().rotation
+                    if action == consts.ROTATE_RIGHT:
+                        # self._provider.peek().rotation = current_rotation + 1
+                        self._provider.peek().rotate_right()
+                    if action == consts.ROTATE_LEFT:
+                        # self._provider.peek().rotation = current_rotation - 1
+                        self._provider.peek().rotate_left()
+                    if action != consts.MOVE_DOWN:
+                        self._lock_counter = 0
+            else:
+                new_coords = actionables[action]["callable"]()
             del self._actions[i]
 
     def __increase_ticker(self):
@@ -73,28 +88,35 @@ class Tetrion:
 
     def update(self, current_ticks: int) -> None:
         self.__increase_ticker()
-        if consts.HOLD in self._actions:
-            self.__hold()
-        elif consts.PAUSE in self._actions:
+        if consts.PAUSE in self._actions:
             self.pause_game()
-        elif consts.DROP in self._actions:
-            self.__drop()
         else:
             self.__apply_movements_from_user_input()
 
-        if not self._is_paused:
-            if self._ticker > 0:
-                coords = get_move_down_coords(
-                    self._provider.peek(), self._grid)
-                if coords is not None:
-                    if self._ticker % (settings.GRAVITY*self.level) == 0:
+        if not self._is_paused and self._ticker > 0:
+            coords = get_move_down_coords(
+                self._provider.peek(), self._grid)
+            if coords is not None:
+                if self._is_droping:
+                    self._provider.peek().coords = coords
+                    coords = get_move_down_coords(
+                        self._provider.peek(), self._grid)
+                    if coords is not None:
                         self._provider.peek().coords = coords
+                    self._lock_counter = 0
+                elif self._ticker % (settings.GRAVITY*self.level) == 0:
+                    self._provider.peek().coords = coords
+            else:
+                if self._is_droping:
+                    self._is_droping = False
+                    self.__lock_tetromino()
+                    self._lock_counter = 0
                 else:
                     self._lock_counter += 1
                     if self._lock_counter == 30:
                         self.__lock_tetromino()
                         self._lock_counter = 0
-                self._grid.update()
+            self._grid.update()
         self.__draw()
 
     def __draw(self):
@@ -105,6 +127,7 @@ class Tetrion:
             grid=self._grid,
             provider=self._provider,
             is_paused=self._is_paused,
+            on_hold=self._on_hold
         )
 
     def __lock_tetromino(self):
@@ -112,12 +135,23 @@ class Tetrion:
         self._first_available_row = self._grid.add(
             coords=tetromino.coords,
             figure_type=tetromino.figure_type)
+        self._can_hold = True
 
-    def __hold(self):
-        pass
+    def __hold(self) -> None:
+        if self._can_hold:
+            self._can_hold = False
+            if self._on_hold is not None:
+                self._on_hold = self._provider.replace_first(self._on_hold)
+            else:
+                self._on_hold = self._provider.dequeue()
+            self._on_hold.coords = calc_initial_coords(
+                self._on_hold, self._grid)
+            initial_coords = calc_initial_coords(
+                self._provider.peek(), self._grid)
+            self._provider.load(initial_coords)
 
     def __drop(self):
-        pass
+        self._is_droping = True
 
     def pause_game(self) -> None:
         """
