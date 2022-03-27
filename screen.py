@@ -1,10 +1,10 @@
-import os
 import pygame
 from assets import ASSETS
 from tetrominoes import Tetromino
 from provider import Provider
 import settings
-from stack import Stack
+from grid import Grid
+from utils.coords import calc_initial_coords
 
 
 class Screen:
@@ -20,17 +20,18 @@ class Screen:
 
     def draw(
         self,
-        stack: Stack = None,
+        grid: Grid = None,
         provider: Provider = None,
-        first_available_row: int = settings.DEFAULT_AVAILABLE_ROW
+        is_paused: bool = False,
     ) -> None:
-        self.win.fill(settings.BACKGROUND)
-        self.draw_playfield()
-        if stack:
-            self.draw_stack(stack)
-        if provider:
-            tetromino = provider.peek()
-            self.draw_figure(tetromino, first_available_row)
+        if is_paused is False:
+            self.win.fill(settings.BACKGROUND)
+            self.draw_playfield()
+            if grid:
+                self.draw_grid(grid)
+            if provider:
+                tetromino = provider.peek()
+                self.draw_tetromino(tetromino, grid)
         pygame.display.update()
 
     def draw_playfield(self):
@@ -47,23 +48,23 @@ class Screen:
                     settings.BASE_SQUARE_SIZE-2),
                     border_radius=2)
 
-    def draw_stack(self, stack: Stack):
-        os.system('cls')
-        print(stack)
-        for i in range(0, stack.size):
+    def draw_grid(self, grid: Grid):
+        # os.system('cls')
+        # print(stack)
+        for i in range(0, grid.size):
             for j in range(0, settings.COLS):
-                if stack.items[i][j] != 0:
+                if grid.items[i][j] != 0:
                     x = settings.BOARD_X + j * settings.BASE_SQUARE_SIZE
                     y = settings.BOARD_Y + (settings.ROWS - i-1) * \
                         settings.BASE_SQUARE_SIZE
-                    self.win.blit(ASSETS[stack.items[i][j]], (x, y))
+                    self.win.blit(ASSETS[grid.items[i][j]], (x, y))
 
-    def draw_figure(self, figure: Tetromino, first_available_row: int):
-        if figure.coords is None:
-            figure.please_get_coords(first_available_row)
-        for row, col in figure.coords:
+    def draw_tetromino(self, tetromino: Tetromino, grid: Grid):
+        if tetromino.coords is None:
+            tetromino.coords = calc_initial_coords(tetromino, grid)
+        for row, col in tetromino.coords:
             # print("row is", row, " and col is", col)
             x = settings.BOARD_X + col*settings.BASE_SQUARE_SIZE
             y = settings.BOARD_Y + (settings.ROWS - 1 - row) * \
                 settings.BASE_SQUARE_SIZE
-            self.win.blit(figure.asset, (x, y))
+            self.win.blit(tetromino.asset, (x, y))

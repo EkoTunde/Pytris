@@ -1,7 +1,7 @@
 from typing import List, Tuple
 import consts
 import settings
-from stack import Stack
+from grid import Grid
 from tetrominoes import Tetromino
 
 
@@ -94,7 +94,7 @@ def get_initial_coords(
 
 
 def will_collide_bellow(
-    stack: Stack,
+    stack: Grid,
     figure_coords: List[Tuple[int, int]]
 ) -> bool:
     if figure_coords is None:
@@ -112,7 +112,7 @@ def will_collide_bellow(
 
 
 def will_collide_left(
-    stack: Stack,
+    stack: Grid,
     figure_coords: List[Tuple[int, int]]
 ) -> bool:
     for row, col in figure_coords:
@@ -128,7 +128,7 @@ def will_collide_left(
 
 
 def will_collide_right(
-    stack: Stack,
+    stack: Grid,
     figure_coords: List[Tuple[int, int]]
 ) -> bool:
     for row, col in figure_coords:
@@ -239,7 +239,7 @@ def rotate_figure_z(
     return coords
 
 
-def can_move_down(tetromino: Tetromino, stack: Stack) -> bool:
+def can_move_down(tetromino: Tetromino, stack: Grid) -> bool:
     """
     Check if tetromino can move down.
     """
@@ -259,7 +259,7 @@ def can_move_down(tetromino: Tetromino, stack: Stack) -> bool:
     return True
 
 
-def can_move_left(tetromino: Tetromino, stack: Stack) -> bool:
+def can_move_left(tetromino: Tetromino, stack: Grid) -> bool:
     """
     Check if tetromino can move left.
     """
@@ -279,7 +279,7 @@ def can_move_left(tetromino: Tetromino, stack: Stack) -> bool:
     return True
 
 
-def can_move_right(tetromino: Tetromino, stack: Stack) -> bool:
+def can_move_right(tetromino: Tetromino, stack: Grid) -> bool:
     """
     Check if tetromino can move right.
     """

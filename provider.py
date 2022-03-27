@@ -1,14 +1,16 @@
 
 # Class Queue
-from typing import List, Union
 from random import shuffle
-
+from typing import List, Union
 from tetrominoes import Tetromino
 
 
 class Provider:
 
-    def __init__(self, *args: Tetromino) -> None:
+    def __init__(
+        self,
+        *args: Tetromino
+    ) -> None:
         self._items = []
         if not args:
             self.__refill()
@@ -17,14 +19,14 @@ class Provider:
                 if isinstance(tetromino, Tetromino):
                     self.enqueue(tetromino)
 
+    def start(self, coords):
+        self.peek().coords = coords
+
     def __refill(self):
         tetrominoes = [1, 2, 3, 4, 5, 6, 7].copy()
         shuffle(tetrominoes)
         for tetromino in tetrominoes:
             self.enqueue(Tetromino(tetromino))
-
-    def start(self, first_available_row: int):
-        self._items[0].please_get_coords(first_available_row)
 
     def is_empty(self) -> bool:
         return self._items == []

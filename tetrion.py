@@ -1,0 +1,126 @@
+import consts
+import settings
+import pygame
+from provider import Provider
+from screen import Screen
+from grid import Grid
+from utils.coords import calc_initial_coords
+from utils.movement import (
+    get_move_down_coords,
+    get_move_left_coords,
+    get_move_right_coords
+)
+from utils.rotation import (
+    get_rotate_right_coords,
+    get_rotate_left_coords
+)
+
+
+class Tetrion:
+
+    def __init__(self, window: pygame.Surface) -> None:
+        self.score = 0
+        self.level = 1
+        self.lines = 0
+        self._is_paused = False
+        self._screen = Screen(window)
+        self._ticker = 0
+        self._grid = Grid()
+        self._lock_counter = 0
+        self._first_available_row = settings.DEFAULT_AVAILABLE_ROW
+        self._provider = Provider()
+        initial_coords = calc_initial_coords(self._provider.peek(), self._grid)
+        self._provider.start(initial_coords)
+        self._actions = []
+
+    def add_action(self, key: int):
+        """
+        Adds a consumable user input to the actions queue.
+
+        Args:
+            key (int): an event.key event from pygame.
+        """
+        self._actions.insert(0, key)
+
+    def __apply_movements_from_user_input(
+        self
+    ) -> bool:
+        actionables = {
+            consts.ROTATE_RIGHT: get_rotate_right_coords,
+            consts.ROTATE_LEFT: get_rotate_left_coords,
+            consts.MOVE_RIGHT: get_move_right_coords,
+            consts.MOVE_LEFT: get_move_left_coords,
+            consts.MOVE_DOWN: get_move_down_coords,
+        }
+        for i, action in reversed(list(enumerate(self._actions))):
+            new_coords = actionables[action](
+                self._provider.peek(), self._grid)
+            if new_coords is not None:
+                self._provider.peek().coords = new_coords
+                # current_rotation = self._provider.peek().rotation
+                if action == consts.ROTATE_RIGHT:
+                    # self._provider.peek().rotation = current_rotation + 1
+                    self._provider.peek().rotate_right()
+                if action == consts.ROTATE_LEFT:
+                    # self._provider.peek().rotation = current_rotation - 1
+                    self._provider.peek().rotate_left()
+                if action != consts.MOVE_DOWN:
+                    self._lock_counter = 0
+            del self._actions[i]
+
+    def __increase_ticker(self):
+        self._ticker += 1
+
+    def update(self, current_ticks: int) -> None:
+        self.__increase_ticker()
+        if consts.HOLD in self._actions:
+            self.__hold()
+        elif consts.PAUSE in self._actions:
+            self.pause_game()
+        elif consts.DROP in self._actions:
+            self.__drop()
+        else:
+            self.__apply_movements_from_user_input()
+
+        if not self._is_paused:
+            if self._ticker > 0:
+                coords = get_move_down_coords(
+                    self._provider.peek(), self._grid)
+                if coords is not None:
+                    if self._ticker % (settings.GRAVITY*self.level) == 0:
+                        self._provider.peek().coords = coords
+                else:
+                    self._lock_counter += 1
+                    if self._lock_counter == 30:
+                        self.__lock_tetromino()
+                        self._lock_counter = 0
+                self._grid.update()
+        self.__draw()
+
+    def __draw(self):
+        """
+        Signal screen to draw game data.
+        """
+        self._screen.draw(
+            grid=self._grid,
+            provider=self._provider,
+            is_paused=self._is_paused,
+        )
+
+    def __lock_tetromino(self):
+        tetromino = self._provider.dequeue()
+        self._first_available_row = self._grid.add(
+            coords=tetromino.coords,
+            figure_type=tetromino.figure_type)
+
+    def __hold(self):
+        pass
+
+    def __drop(self):
+        pass
+
+    def pause_game(self) -> None:
+        """
+        Pause the game by inverting pause (bool).
+        """
+        self._is_paused = not self._is_paused

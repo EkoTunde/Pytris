@@ -1,61 +1,60 @@
+import consts
 import pygame
-from game import Game
 import settings
-
-WIDTH, HEIGHT = 800, 600
-WIN = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
-pygame.display.set_caption(settings.CAPTION)
-
-start_time = 0
+from tetrion import Tetrion
 
 
-# def draw_window(game: Game, stack: list, elapsed_time) -> None:
-#     WIN.fill(settings.BACKGROUND)
-#     game.draw(WIN, elapsed_time)
-#     pygame.display.update()
+def handle_user_input(key, tetrion: Tetrion):
+    if key == pygame.K_UP or key == pygame.K_x:
+        tetrion.add_action(consts.ROTATE_RIGHT)
+    if key == pygame.K_z:
+        tetrion.add_action(consts.ROTATE_LEFT)
+    if key == pygame.K_LEFT:
+        tetrion.add_action(consts.MOVE_LEFT)
+    if key == pygame.K_RIGHT:
+        tetrion.add_action(consts.MOVE_RIGHT)
+    if key == pygame.K_DOWN:
+        tetrion.add_action(consts.MOVE_DOWN)
+    if key == pygame.K_c:
+        tetrion.add_action(consts.HOLD)
+    if key == pygame.K_SPACE:
+        tetrion.add_action(consts.DROP)
+    if key == pygame.K_p:
+        tetrion.add_action(consts.PAUSE)
 
 
 def main():
+    WIN = pygame.display.set_mode((settings.WIDTH, settings.HEIGHT))
+    pygame.display.set_caption(settings.CAPTION)
     clock = pygame.time.Clock()
     run = True
-    game = Game(WIN)
-    # last_record = 0
+    tetrion = Tetrion(WIN)
     while run:
-        elapsed_time = (pygame.time.get_ticks() - start_time)
         clock.tick(settings.FPS)
-        # print("ticks", pygame.time.get_ticks())
-        # print("time", clock.get_time())
-        # print("fps", clock.get_fps())
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-                    game = Game(WIN)
-                game.handle_user_input(event)
-                # if event.key == pygame.K_UP or event.key == pygame.K_x:
-                #     game.rotate_right()
-                # if event.key == pygame.K_z:
-                #     game.rotate_left()
-                # if event.key == pygame.K_LEFT:
-                #     game.move_left()
-                # if event.key == pygame.K_RIGHT:
-                #     game.move_right()
-                # if event.key == pygame.K_DOWN:
-                #     game.move_down()
-        # if elapsed_time // 100 > (last_record // 100):
-        #     print("elapsed_time", elapsed_time //
-        #           100, "last_record", last_record // 100)
-        #     keys_pressed = pygame.key.get_pressed()
-        #     if keys_pressed[pygame.K_LEFT]:
-        #         game.move_left()
-        #     if keys_pressed[pygame.K_RIGHT]:
-        #         game.move_right()
-        #     if keys_pressed[pygame.K_DOWN]:
-        #         game.move_down()
-
-        # last_record = elapsed_time
-        game.update(elapsed_time)
+                key = event.key
+                if key == pygame.K_r:
+                    tetrion = Tetrion(WIN)
+                if key == pygame.K_UP or key == pygame.K_x:
+                    tetrion.add_action(consts.ROTATE_RIGHT)
+                if key == pygame.K_z:
+                    tetrion.add_action(consts.ROTATE_LEFT)
+                if key == pygame.K_LEFT:
+                    tetrion.add_action(consts.MOVE_LEFT)
+                if key == pygame.K_RIGHT:
+                    tetrion.add_action(consts.MOVE_RIGHT)
+                if key == pygame.K_DOWN:
+                    tetrion.add_action(consts.MOVE_DOWN)
+                if key == pygame.K_c:
+                    tetrion.add_action(consts.HOLD)
+                if key == pygame.K_SPACE:
+                    tetrion.add_action(consts.DROP)
+                if key == pygame.K_p:
+                    tetrion.add_action(consts.PAUSE)
+        tetrion.update(pygame.time.get_ticks())
 
     pygame.quit()
 

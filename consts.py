@@ -1,3 +1,6 @@
+"""
+Store an int representing a tretromino shape.
+"""
 TETROMINO_I = 1
 TETROMINO_Z = 2
 TETROMINO_S = 3
@@ -5,7 +8,12 @@ TETROMINO_T = 4
 TETROMINO_J = 5
 TETROMINO_L = 6
 TETROMINO_O = 7
+EMPTY_CELL = 0
 
+
+"""
+How to call a tetromino when querying by its type.
+"""
 TETROMINOES_NAMES = {
     1: "I",
     2: "Z",
@@ -16,11 +24,35 @@ TETROMINOES_NAMES = {
     7: "O",
 }
 
+"""
+This constants represents the different user actions.
+"""
+ROTATE_RIGHT = 0
+ROTATE_LEFT = 1
+MOVE_RIGHT = 2
+MOVE_DOWN = 3
+MOVE_LEFT = 4
+HOLD = 5
+DROP = 6
+PAUSE = 7
+
+
+"""
+Represent the posible rotation states.
+"""
 DEGREES_0 = 0
 DEGREES_90 = 1
 DEGREES_180 = 2
 DEGREES_270 = 3
 
+
+"""
+This data consists of a dictionary which provides a way to
+then calculate how to place a tetromino on the board at first.
+The keys represent tetrominoes types, and the values are tuples
+of the form (x, y) which represent how to transform the coordinates
+of the tetromino's blocks.
+"""
 INITIAL_COORDS_DATA = {
     TETROMINO_I: (
         (0, 0),
@@ -66,6 +98,32 @@ INITIAL_COORDS_DATA = {
     ),
 }
 
+"""
+This data is used to calculate what row is
+available for a tetromino to be placed on.
+"""
+FIRST_NEEDED_ROWS_DATA = {
+    TETROMINO_I: (3, 4, 5, 6,),
+    TETROMINO_J: (3, 4, 5,),
+    TETROMINO_L: (3, 4, 5,),
+    TETROMINO_O: (4, 5,),
+    TETROMINO_S: (3, 4,),
+    TETROMINO_T: (3, 4, 5,),
+    TETROMINO_Z: (4, 5,),
+}
+
+"""
+Provides the coordinates of the blocks composing
+a Tetromino when a rotation from some degree to
+another is performed.
+The key defines the tetromino type. For each type,
+the value is a dict, with the keys being every
+posible rotation, for whom is assigned a tuple, made
+up from the current rotation and the pretended rotation.
+For each posible rotation flow, the value is a tuple
+with dictionaries containing how to move a block (up,
+right, down, left), in terms of integers.
+"""
 ROTATION_DATA = {
     TETROMINO_I: {
         (0, 1): (
@@ -417,6 +475,19 @@ ROTATION_DATA = {
     },
 }
 
+
+"""
+This data indicates how to rotate a tetromino of type J, L,
+S, T or Z. It provides test cases for the rotate function,
+do it can attempt to rotate 5 times, using the next case if
+the first one fails, and so on.
+It consists of a dictionary with the following structure:
+a tuple of two integers, as keys, representing the current
+rotation state and the pretended one and, as values, a list
+containg tuples which indicate how to transform the rotation,
+being the first value how to move it in x axis, and the second
+how to move it in y axis.
+"""
 J_L_S_T_Z_WALL_KICK_DATA = {
     #        ┌─1─┐    ┌─2─┐    ┌─3─┐     ┌─4─┐    ┌─5─┐
     (0, 1): [(0, 0), (-1, 0), (-1, 1),  (0, -2), (-1, -2)],
@@ -429,6 +500,10 @@ J_L_S_T_Z_WALL_KICK_DATA = {
     (0, 3): [(0, 0), (1, 0),  (1, 1),   (0, -2), (1, -2)],
 }
 
+
+"""
+Does the same as J_L_S_T_Z_WALL_KICK_DATA, but for I tetrominos.
+"""
 I_WALL_KICK_DATA = {
     #        ┌─1─┐    ┌─2─┐    ┌─3─┐     ┌─4─┐    ┌─5─┐
     (0, 1): [(0, 0), (-2, 0), (1, 0),  (-2, -1), (1, 2)],
