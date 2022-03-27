@@ -51,6 +51,8 @@ class Provider:
     def get_next(
         self, n: int
     ) -> List[Tetromino]:
+        if n > self.size():
+            return self._items[1:self.size]
         return self._items[1:n+1]
 
     def replace_first(self, tetromino: Tetromino) -> Tetromino:

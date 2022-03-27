@@ -18,8 +18,8 @@ def relocate(
 
 
 def calc_initial_coords(
-        tetromino: Tetromino,
-        grid: Grid
+    tetromino: Tetromino,
+    grid: Grid
 ) -> List[Tuple[int, int]]:
     """Returns the coordinates of the tetromino in the initial position."""
     row = calc_first_available_row(
@@ -48,3 +48,24 @@ def calc_first_available_row(grid: Grid, cols: Tuple[int, ...]) -> int:
         if row > max:
             raise ValueError("This row isn't playable.")
     return result
+
+
+def calc_coords_from_row(
+    tetromino: Tetromino,
+    row: int
+) -> List[Tuple[int, int]]:
+    """
+    Returns the coordinates of the tetromino
+    in the initial position for provided row
+    """
+    initial_coords = consts.INITIAL_COORDS_DATA.get(tetromino.figure_type)
+    return [
+        (row + initial_coords[0][0] - 6,
+         tetromino.initial_x + initial_coords[0][1] - 3),
+        (row + initial_coords[1][0] - 6,
+         tetromino.initial_x + initial_coords[1][1] - 3),
+        (row + initial_coords[2][0] - 6,
+         tetromino.initial_x + initial_coords[2][1] - 3),
+        (row + initial_coords[3][0] - 6,
+         tetromino.initial_x + initial_coords[3][1] - 3),
+    ]

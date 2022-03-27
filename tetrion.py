@@ -6,17 +6,28 @@ from screen import Screen
 from grid import Grid
 from utils.coords import calc_initial_coords
 from utils.movement import (
-    get_move_down_coords,
-    get_move_left_coords,
-    get_move_right_coords
-)
-from utils.rotation import (
-    get_rotate_right_coords,
-    get_rotate_left_coords
-)
+    get_move_down_coords, get_move_left_coords, get_move_right_coords)
+from utils.rotation import get_rotate_right_coords, get_rotate_left_coords
 
 
 class Tetrion:
+
+    ACTIONABLES = {
+        consts.HOLD: {
+            "callable": self.__hold, "needs_args": False},
+        consts.DROP: {
+            "callable": self.__drop, "needs_args": False},
+        consts.ROTATE_RIGHT: {
+            "callable": get_rotate_right_coords, "needs_args": True},
+        consts.ROTATE_LEFT: {
+            "callable": get_rotate_left_coords, "needs_args": True},
+        consts.MOVE_RIGHT: {
+            "callable": get_move_right_coords, "needs_args": True},
+        consts.MOVE_LEFT: {
+            "callable": get_move_left_coords, "needs_args": True},
+        consts.MOVE_DOWN: {
+            "callable": get_move_down_coords, "needs_args": True},
+    }
 
     def __init__(self, window: pygame.Surface, font: pygame.font.Font) -> None:
         self.score = 0
@@ -32,9 +43,14 @@ class Tetrion:
         initial_coords = calc_initial_coords(self._provider.peek(), self._grid)
         self._provider.load(initial_coords)
         self._actions = []
+        self._DAS_actions = []
         self._on_hold = None
         self._can_hold = True
         self._is_droping = False
+        self._DAS_right_on = False
+        self._DAS_right_ticks_countdown = settings.FPS / 2
+        self._DAS_left_on = False
+        self._DAS_down_on = False
 
     def add_action(self, key: int):
         """
@@ -45,43 +61,60 @@ class Tetrion:
         """
         self._actions.insert(0, key)
 
+    def add_DAS_action(self, key: int):
+        """
+        Adds a consumable user input to the actions queue.
+
+        Args:
+            key (int): an event.key event from pygame.
+        """
+        self._DAS_actions.insert(0, key)
+
+    def is_DAS_action_on(self, key: int):
+        if key == consts.MOVE_RIGHT:
+            return self._DAS_right_on
+        if key == consts.MOVE_LEFT:
+            return self._DAS_left_on
+        if key == consts.MOVE_DOWN:
+            return self._DAS_down_on
+        raise ValueError("Invalid key")
+
     def __apply_movements_from_user_input(
         self
     ) -> bool:
-        actionables = {
-            consts.HOLD: {
-                "callable": self.__hold, "needs_args": False},
-            consts.DROP: {
-                "callable": self.__drop, "needs_args": False},
-            consts.ROTATE_RIGHT: {
-                "callable": get_rotate_right_coords, "needs_args": True},
-            consts.ROTATE_LEFT: {
-                "callable": get_rotate_left_coords, "needs_args": True},
-            consts.MOVE_RIGHT: {
-                "callable": get_move_right_coords, "needs_args": True},
-            consts.MOVE_LEFT: {
-                "callable": get_move_left_coords, "needs_args": True},
-            consts.MOVE_DOWN: {
-                "callable": get_move_down_coords, "needs_args": True},
-        }
         for i, action in reversed(list(enumerate(self._actions))):
-            if actionables[action]["needs_args"]:
-                new_coords = actionables[action]["callable"](
+            if self.ACTIONABLES[action]["needs_args"]:
+                new_coords = self.ACTIONABLES[action]["callable"](
                     self._provider.peek(), self._grid)
                 if new_coords is not None:
                     self._provider.peek().coords = new_coords
-                    # current_rotation = self._provider.peek().rotation
                     if action == consts.ROTATE_RIGHT:
-                        # self._provider.peek().rotation = current_rotation + 1
                         self._provider.peek().rotate_right()
                     if action == consts.ROTATE_LEFT:
-                        # self._provider.peek().rotation = current_rotation - 1
                         self._provider.peek().rotate_left()
                     if action != consts.MOVE_DOWN:
                         self._lock_counter = 0
+                    if action == consts.HOLD or action == consts.DROP:
+                        self.__clear_DAS()
             else:
-                new_coords = actionables[action]["callable"]()
+                new_coords = self.ACTIONABLES[action]["callable"]()
             del self._actions[i]
+
+    def __clear_DAS(self):
+        self._DAS_right_on = True
+        self._DAS_left_on = True
+        self._DAS_down_on = True
+
+    def __process_DAS_actions(self):
+        if self._DAS_actions:
+            for i, action in reversed(list(enumerate(self._DAS_actions))):
+                if action == consts.MOVE_RIGHT:
+                    self._DAS_right_on = True
+                if action == consts.MOVE_LEFT:
+                    self._DAS_left_on = True
+                if action == consts.MOVE_DOWN:
+                    self._DAS_down_on = True
+        pass
 
     def __increase_ticker(self):
         self._ticker += 1
@@ -91,6 +124,7 @@ class Tetrion:
         if consts.PAUSE in self._actions:
             self.pause_game()
         else:
+            self.__process_DAS_actions()
             self.__apply_movements_from_user_input()
 
         if not self._is_paused and self._ticker > 0:
@@ -135,6 +169,8 @@ class Tetrion:
         self._first_available_row = self._grid.add(
             coords=tetromino.coords,
             figure_type=tetromino.figure_type)
+        self._provider.load(calc_initial_coords(
+            self._provider.peek(), self._grid))
         self._can_hold = True
 
     def __hold(self) -> None:

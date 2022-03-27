@@ -45,6 +45,27 @@ DEGREES_90 = 1
 DEGREES_180 = 2
 DEGREES_270 = 3
 
+NEXT_FIELD_TITLE = "NEXT"
+NEXT_FIELD_CACHE = "next_field_cache"
+NEXT_FIELD_TITLE_CACHE = "next_field_title_cache"
+NEXT_FIELD_TITLE_RECT_CACHE = "next_field_title_rect_cache"
+
+HOLD_FIELD_TITLE = "HOLD"
+HOLD_FIELD_CACHE = "hold_field_cache"
+HOLD_FIELD_TITLE_CACHE = "hold_field_title_cache"
+HOLD_FIELD_TITLE_RECT_CACHE = "hold_field_title_rect_cache"
+
+WHITE = (255, 255, 255)
+
+BLOCKS_WIDTH = {
+    TETROMINO_I: 4,
+    TETROMINO_J: 3,
+    TETROMINO_L: 3,
+    TETROMINO_O: 2,
+    TETROMINO_S: 3,
+    TETROMINO_T: 3,
+    TETROMINO_Z: 3,
+}
 
 """
 This data consists of a dictionary which provides a way to
