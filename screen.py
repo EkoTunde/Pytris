@@ -44,7 +44,7 @@ class Screen:
                 self.draw_grid(grid)
             if provider:
                 tetromino = provider.peek()
-                self.draw_tetromino(tetromino, grid)
+                self.draw_falling_tetromino(tetromino, grid)
             self.draw_hold_field()
             if on_hold:
                 self.draw_tetromino_on_hold(on_hold)
@@ -75,7 +75,7 @@ class Screen:
                         settings.BASE_SQUARE_SIZE
                     self.win.blit(ASSETS[grid.items[i][j]], (x, y))
 
-    def draw_tetromino(self, tetromino: Tetromino, grid: Grid):
+    def draw_falling_tetromino(self, tetromino: Tetromino, grid: Grid):
         if tetromino.coords is None:
             tetromino.coords = calc_initial_coords(tetromino, grid)
         for row, col in tetromino.coords:
@@ -135,3 +135,9 @@ class Screen:
                 settings.BASE_SQUARE_SIZE * 2
             y = field_y + (settings.ROWS - row) * settings.BASE_SQUARE_SIZE
             self.win.blit(tetromino.asset, (x, y))
+
+    def draw_next_field(self) -> None:
+        pass
+
+    def draw_next_tetrominoes(self, provider: Provider) -> None:
+        pass
