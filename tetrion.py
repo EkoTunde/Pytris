@@ -4,7 +4,7 @@ import pygame
 from provider import Provider
 from screen import Screen
 from grid import Grid
-from utils.coords import calc_initial_coords
+from utils.coords import calc_initial_coords, calculate_ghost_coords
 from utils.movement import (
     get_move_down_coords, get_move_left_coords, get_move_right_coords)
 from utils.rotation import get_rotate_right_coords, get_rotate_left_coords
@@ -192,7 +192,8 @@ class Tetrion:
             is_paused=self._is_paused,
             grid=self._grid,
             provider=self._provider,
-            on_hold=self._on_hold
+            on_hold=self._on_hold,
+            calculate_ghost_coords(self._provider.peek(), self._grid),
         )
 
     def __lock_tetromino(self):

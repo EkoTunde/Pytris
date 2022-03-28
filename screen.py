@@ -1,3 +1,4 @@
+from typing import List, Tuple
 import pygame
 from assets import ASSETS
 import assets
@@ -39,6 +40,7 @@ class Screen:
         grid: Grid = None,
         provider: Provider = None,
         on_hold: Tetromino = None,
+        ghost_coords: List[Tuple[int, int]] = None,
     ) -> None:
         if is_paused is False:
             self.win.fill(settings.BACKGROUND)
@@ -54,6 +56,8 @@ class Screen:
                 self.draw_next_tetrominoes(provider)
             if on_hold:
                 self.draw_tetromino_on_hold(on_hold)
+            if ghost_coords:
+                self.draw_ghost_tetromino(ghost_coords)
         pygame.display.update()
 
     def draw_playfield(self):
@@ -149,3 +153,9 @@ class Screen:
         if tetromino.figure_type == consts.TETROMINO_I:
             y += settings.BASE_NEXT_FIELD_PADDING
         self.win.blit(asset, (x, y))
+
+    def draw_ghost_tetromino(
+        self,
+        ghost_coords: List[Tuple[int, int]]
+    ) -> None:
+        pass

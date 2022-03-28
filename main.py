@@ -57,6 +57,7 @@ def main():
 if __name__ == '__main__':
     main()
     # ! TODO:
+    # - Add ghost.
     # - Add score.
     # - Add levels.
     # - Add increase gravity with levels.

@@ -71,8 +71,17 @@ def calc_coords_from_row(
     ]
 
 
-def calculate_ghost_coords(tetromino: Tetromino, grid: Grid):
-    pass
+def calculate_ghost_coords(
+    tetromino: Tetromino,
+    grid: Grid
+) -> List[Tuple[int, int]]:
+    cols = set([col for _, col in tetromino.coords])
+    ghost_floor = 0
+    for i, row in enumerate(grid.items):
+        if all([col == 0 for col in row if col in cols]):
+            ghost_floor = i
+            break
+    return calc_coords_from_row(tetromino, ghost_floor)
     # cols = [y for _, y in tetromino.coords]
     # result = 0
     # row = 0
