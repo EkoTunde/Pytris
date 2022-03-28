@@ -51,6 +51,10 @@ ASSETS = {
         tetromino_block_image(consts.TETROMINO_O),
         SIZE
     ),
+    consts.GHOST: pygame.transform.scale(
+        pygame.image.load(os.path.join('assets', 'ghost_block.png')),
+        SIZE
+    ),
 }
 
 TETROMINOES_ASSETS = {

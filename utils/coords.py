@@ -5,16 +5,7 @@ from grid import Grid
 from tetrominoes import Tetromino
 from typing import List, Tuple
 
-
-def relocate(
-    coords: Tuple[int, int],
-    up=0,
-    right=0,
-    down=0,
-    left=0,
-) -> Tuple[int, int]:
-    """Returns a new Tuple with the coordinates relocated."""
-    return (coords[0] + up - down, coords[1] + right - left)
+from utils.movement import get_moved_coords
 
 
 def calc_initial_coords(
@@ -75,27 +66,19 @@ def calculate_ghost_coords(
     tetromino: Tetromino,
     grid: Grid
 ) -> List[Tuple[int, int]]:
-    cols = set([col for _, col in tetromino.coords])
-    ghost_floor = 0
-    for i, row in enumerate(grid.items):
-        if all([col == 0 for col in row if col in cols]):
-            ghost_floor = i
-            break
-    return calc_coords_from_row(tetromino, ghost_floor)
-    # cols = [y for _, y in tetromino.coords]
-    # result = 0
-    # row = 0
-    # max = settings.DEFAULT_MAX_AVAILABLE_ROW
-    # for row in grid.items:
-    #     all_empty = True
-    #     for col in cols:
-    #         if row[col] != 0:
-    #             all_empty = False
-    #             break
-    # for col in cols:
-    #     if grid.items[row][col] != 0:
-    #         row += 1
-    #         result = row
-    #     if row > max:
-    #         raise ValueError("This row isn't playable.")
-    # return result
+    return lowest_coords(tetromino.coords, grid)
+
+
+def lowest_coords(
+    coords: List[Tuple[int, int]],
+    grid: Grid
+) -> List[Tuple[int, int]]:
+    """
+    Returns the coordinates of the tetromino
+    in the lowest available position.
+    """
+    # return coords
+    lowered_coords = get_moved_coords(coords, down=1)
+    if not grid.is_valid_position(lowered_coords):
+        return coords
+    return lowest_coords(lowered_coords, grid)

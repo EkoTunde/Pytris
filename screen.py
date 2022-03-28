@@ -7,7 +7,6 @@ from tetrominoes import Tetromino
 from provider import Provider
 import settings
 from grid import Grid
-from utils.coords import calc_coords_from_row, calc_initial_coords
 
 
 class Screen:
@@ -90,6 +89,16 @@ class Screen:
                 settings.BASE_SQUARE_SIZE
             self.win.blit(tetromino.asset, (x, y))
 
+    def draw_ghost_tetromino(
+        self,
+        ghost_coords: List[Tuple[int, int]]
+    ) -> None:
+        for row, col in ghost_coords:
+            x = settings.PLAYFIELD_X + col*settings.BASE_SQUARE_SIZE
+            y = settings.PLAYFIELD_Y + (settings.ROWS - 1 - row) * \
+                settings.BASE_SQUARE_SIZE
+            self.win.blit(assets.ASSETS[consts.GHOST], (x, y))
+
     def draw_next_field(self):
         self._cache[consts.NEXT_FIELD_CACHE] = pygame.draw.rect(
             self.win, settings.PLAYFIELD_BACKGROUND, (
@@ -153,9 +162,3 @@ class Screen:
         if tetromino.figure_type == consts.TETROMINO_I:
             y += settings.BASE_NEXT_FIELD_PADDING
         self.win.blit(asset, (x, y))
-
-    def draw_ghost_tetromino(
-        self,
-        ghost_coords: List[Tuple[int, int]]
-    ) -> None:
-        pass

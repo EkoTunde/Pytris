@@ -2,7 +2,8 @@ import consts
 from typing import Dict, List, Tuple, Union
 from grid import Grid
 from tetrominoes import Tetromino
-from utils.coords import relocate
+# from utils.coords import relocate
+from utils.base import relocate
 
 
 def get_rotate_right_coords(

@@ -35,16 +35,6 @@ class Tetrion:
         self._left_DAS_ticks = settings.DAS_MAX
         self._down_DAS_ticks = settings.DAS_MAX
 
-    def __cancel_right_DAS(self):
-        self._DAS_right_on = False
-        self._right_DAS_ticks = settings.FPS // 4
-
-    def __cancel_down_DAS(self):
-        self._DAS_down_on = False
-
-    def __cancel_left_DAS(self):
-        self._DAS_left_on = False
-
     def add_action(self, key: int):
         """
         Adds a consumable user input to the actions queue.
@@ -98,7 +88,8 @@ class Tetrion:
                         self.reset_left_DAS()
                         if (self._right_DAS_ticks == settings.DAS_MAX or
                                 self._right_DAS_ticks < 0):
-                            self._provider.peek().coords = new_coords
+                            if not self._is_droping:
+                                self._provider.peek().coords = new_coords
                         self._right_DAS_ticks -= 1
 
                     # IF MOVING LEFT
@@ -106,23 +97,30 @@ class Tetrion:
                         self.reset_right_DAS()
                         if (self._left_DAS_ticks == settings.DAS_MAX or
                                 self._left_DAS_ticks < 0):
-                            self._provider.peek().coords = new_coords
+                            if not self._is_droping:
+                                self._provider.peek().coords = new_coords
                         self._left_DAS_ticks -= 1
 
                     # IF MOVING DOWN
                     elif action == consts.MOVE_DOWN:
                         if (self._down_DAS_ticks == settings.DAS_MAX or
                                 self._down_DAS_ticks < 0):
-                            self._provider.peek().coords = new_coords
+                            if not self._is_droping:
+                                self._provider.peek().coords = new_coords
                         self._down_DAS_ticks -= 1
+
+                    elif (action == consts.ROTATE_RIGHT
+                          or action == consts.ROTATE_LEFT):
+                        if not self._is_droping:
+                            self._provider.peek().coords = new_coords
 
                     # ANYTHING ELSE
                     else:
                         self._provider.peek().coords = new_coords
 
-                    if action == consts.ROTATE_RIGHT:
+                    if action == consts.ROTATE_RIGHT and not self._is_droping:
                         self._provider.peek().rotate_right()
-                    if action == consts.ROTATE_LEFT:
+                    if action == consts.ROTATE_LEFT and not self._is_droping:
                         self._provider.peek().rotate_left()
                     if action != consts.MOVE_DOWN:
                         self._lock_counter = 0
@@ -172,7 +170,6 @@ class Tetrion:
                     self._provider.peek().coords = coords
             else:
                 if self._is_droping:
-                    print("is droping")
                     self._is_droping = False
                     self.__lock_tetromino()
                     self._lock_counter = 0
@@ -193,7 +190,8 @@ class Tetrion:
             grid=self._grid,
             provider=self._provider,
             on_hold=self._on_hold,
-            calculate_ghost_coords(self._provider.peek(), self._grid),
+            ghost_coords=calculate_ghost_coords(
+                self._provider.peek(), self._grid),
         )
 
     def __lock_tetromino(self):
@@ -204,6 +202,7 @@ class Tetrion:
         self._provider.load(calc_initial_coords(
             self._provider.peek(), self._grid))
         self._can_hold = True
+        self._is_droping = False
 
     def __hold(self) -> None:
         if self._can_hold:
