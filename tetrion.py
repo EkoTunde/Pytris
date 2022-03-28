@@ -12,23 +12,6 @@ from utils.rotation import get_rotate_right_coords, get_rotate_left_coords
 
 class Tetrion:
 
-    ACTIONABLES = {
-        consts.HOLD: {
-            "callable": self.__hold, "needs_args": False},
-        consts.DROP: {
-            "callable": self.__drop, "needs_args": False},
-        consts.ROTATE_RIGHT: {
-            "callable": get_rotate_right_coords, "needs_args": True},
-        consts.ROTATE_LEFT: {
-            "callable": get_rotate_left_coords, "needs_args": True},
-        consts.MOVE_RIGHT: {
-            "callable": get_move_right_coords, "needs_args": True},
-        consts.MOVE_LEFT: {
-            "callable": get_move_left_coords, "needs_args": True},
-        consts.MOVE_DOWN: {
-            "callable": get_move_down_coords, "needs_args": True},
-    }
-
     def __init__(self, window: pygame.Surface, font: pygame.font.Font) -> None:
         self.score = 0
         self.level = 1
@@ -48,9 +31,19 @@ class Tetrion:
         self._can_hold = True
         self._is_droping = False
         self._DAS_right_on = False
-        self._DAS_right_ticks_countdown = settings.FPS / 2
-        self._DAS_left_on = False
+        self._right_DAS_ticks = settings.DAS_MAX
+        self._left_DAS_ticks = settings.DAS_MAX
+        self._down_DAS_ticks = settings.DAS_MAX
+
+    def __cancel_right_DAS(self):
+        self._DAS_right_on = False
+        self._right_DAS_ticks = settings.FPS // 4
+
+    def __cancel_down_DAS(self):
         self._DAS_down_on = False
+
+    def __cancel_left_DAS(self):
+        self._DAS_left_on = False
 
     def add_action(self, key: int):
         """
@@ -61,33 +54,72 @@ class Tetrion:
         """
         self._actions.insert(0, key)
 
-    def add_DAS_action(self, key: int):
-        """
-        Adds a consumable user input to the actions queue.
+    def reset_right_DAS(self):
+        self._right_DAS_ticks = settings.DAS_MAX
 
-        Args:
-            key (int): an event.key event from pygame.
-        """
-        self._DAS_actions.insert(0, key)
+    def reset_left_DAS(self):
+        self._left_DAS_ticks = settings.DAS_MAX
 
-    def is_DAS_action_on(self, key: int):
-        if key == consts.MOVE_RIGHT:
-            return self._DAS_right_on
-        if key == consts.MOVE_LEFT:
-            return self._DAS_left_on
-        if key == consts.MOVE_DOWN:
-            return self._DAS_down_on
-        raise ValueError("Invalid key")
+    def reset_down_DAS(self):
+        self._down_DAS_ticks = settings.DAS_MAX
 
-    def __apply_movements_from_user_input(
-        self
-    ) -> bool:
-        for i, action in reversed(list(enumerate(self._actions))):
+    def pause(self):
+        self._is_paused = not self._is_paused
+        self._actions = []
+
+    @property
+    def ACTIONABLES(self):
+        return {
+            consts.HOLD: {
+                "callable": self.__hold, "needs_args": False},
+            consts.DROP: {
+                "callable": self.__drop, "needs_args": False},
+            consts.ROTATE_RIGHT: {
+                "callable": get_rotate_right_coords, "needs_args": True},
+            consts.ROTATE_LEFT: {
+                "callable": get_rotate_left_coords, "needs_args": True},
+            consts.MOVE_RIGHT: {
+                "callable": get_move_right_coords, "needs_args": True},
+            consts.MOVE_LEFT: {
+                "callable": get_move_left_coords, "needs_args": True},
+            consts.MOVE_DOWN: {
+                "callable": get_move_down_coords, "needs_args": True},
+        }
+
+    def __apply_movements_from_user_input(self) -> bool:
+        for action in self._actions:
             if self.ACTIONABLES[action]["needs_args"]:
                 new_coords = self.ACTIONABLES[action]["callable"](
                     self._provider.peek(), self._grid)
                 if new_coords is not None:
-                    self._provider.peek().coords = new_coords
+
+                    # IF MOVING RIGHT
+                    if action == consts.MOVE_RIGHT:
+                        self.reset_left_DAS()
+                        if (self._right_DAS_ticks == settings.DAS_MAX or
+                                self._right_DAS_ticks < 0):
+                            self._provider.peek().coords = new_coords
+                        self._right_DAS_ticks -= 1
+
+                    # IF MOVING LEFT
+                    elif action == consts.MOVE_LEFT:
+                        self.reset_right_DAS()
+                        if (self._left_DAS_ticks == settings.DAS_MAX or
+                                self._left_DAS_ticks < 0):
+                            self._provider.peek().coords = new_coords
+                        self._left_DAS_ticks -= 1
+
+                    # IF MOVING DOWN
+                    elif action == consts.MOVE_DOWN:
+                        if (self._down_DAS_ticks == settings.DAS_MAX or
+                                self._down_DAS_ticks < 0):
+                            self._provider.peek().coords = new_coords
+                        self._down_DAS_ticks -= 1
+
+                    # ANYTHING ELSE
+                    else:
+                        self._provider.peek().coords = new_coords
+
                     if action == consts.ROTATE_RIGHT:
                         self._provider.peek().rotate_right()
                     if action == consts.ROTATE_LEFT:
@@ -98,12 +130,13 @@ class Tetrion:
                         self.__clear_DAS()
             else:
                 new_coords = self.ACTIONABLES[action]["callable"]()
-            del self._actions[i]
+                # self._provider.peek().coords = new_coords
+        self._actions = []
 
     def __clear_DAS(self):
-        self._DAS_right_on = True
-        self._DAS_left_on = True
-        self._DAS_down_on = True
+        self.reset_right_DAS()
+        self.reset_left_DAS()
+        self.reset_down_DAS()
 
     def __process_DAS_actions(self):
         if self._DAS_actions:
@@ -121,13 +154,10 @@ class Tetrion:
 
     def update(self, current_ticks: int) -> None:
         self.__increase_ticker()
-        if consts.PAUSE in self._actions:
-            self.pause_game()
-        else:
+        if not self._is_paused and self._ticker > 0:
             self.__process_DAS_actions()
             self.__apply_movements_from_user_input()
 
-        if not self._is_paused and self._ticker > 0:
             coords = get_move_down_coords(
                 self._provider.peek(), self._grid)
             if coords is not None:
@@ -142,6 +172,7 @@ class Tetrion:
                     self._provider.peek().coords = coords
             else:
                 if self._is_droping:
+                    print("is droping")
                     self._is_droping = False
                     self.__lock_tetromino()
                     self._lock_counter = 0
@@ -158,9 +189,9 @@ class Tetrion:
         Signal screen to draw game data.
         """
         self._screen.draw(
+            is_paused=self._is_paused,
             grid=self._grid,
             provider=self._provider,
-            is_paused=self._is_paused,
             on_hold=self._on_hold
         )
 
@@ -186,7 +217,7 @@ class Tetrion:
                 self._provider.peek(), self._grid)
             self._provider.load(initial_coords)
 
-    def __drop(self):
+    def __drop(self) -> None:
         self._is_droping = True
 
     def pause_game(self) -> None:

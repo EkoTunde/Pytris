@@ -69,3 +69,24 @@ def calc_coords_from_row(
         (row + initial_coords[3][0] - 6,
          tetromino.initial_x + initial_coords[3][1] - 3),
     ]
+
+
+def calculate_ghost_coords(tetromino: Tetromino, grid: Grid):
+    pass
+    # cols = [y for _, y in tetromino.coords]
+    # result = 0
+    # row = 0
+    # max = settings.DEFAULT_MAX_AVAILABLE_ROW
+    # for row in grid.items:
+    #     all_empty = True
+    #     for col in cols:
+    #         if row[col] != 0:
+    #             all_empty = False
+    #             break
+    # for col in cols:
+    #     if grid.items[row][col] != 0:
+    #         row += 1
+    #         result = row
+    #     if row > max:
+    #         raise ValueError("This row isn't playable.")
+    # return result

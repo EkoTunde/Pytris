@@ -35,9 +35,9 @@ class Screen:
 
     def draw(
         self,
+        is_paused: bool = False,
         grid: Grid = None,
         provider: Provider = None,
-        is_paused: bool = False,
         on_hold: Tetromino = None,
     ) -> None:
         if is_paused is False:

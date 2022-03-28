@@ -12,53 +12,43 @@ def main():
     clock = pygame.time.Clock()
     run = True
     tetrion = Tetrion(WIN, FONT)
+    paused = False
     while run:
         clock.tick(settings.FPS)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_p:
+                tetrion.pause()
+                paused = not paused
+                break
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_c:
+                    tetrion.add_action(consts.HOLD)
+                if event.key == pygame.K_SPACE:
+                    tetrion.add_action(consts.DROP)
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT:
+                    tetrion.reset_left_DAS()
+                if event.key == pygame.K_RIGHT:
+                    tetrion.reset_right_DAS()
+                if event.key == pygame.K_DOWN:
+                    tetrion.reset_down_DAS()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_r:
+                    tetrion = Tetrion(WIN, FONT)
+                if event.key == pygame.K_UP or event.key == pygame.K_x:
+                    tetrion.add_action(consts.ROTATE_RIGHT)
+                if event.key == pygame.K_z:
+                    tetrion.add_action(consts.ROTATE_LEFT)
+        if not paused:
             keys_pressed = pygame.key.get_pressed()
-            left_DAS = False
-            right_DAS = False
-            down_DAS = False
             if keys_pressed[pygame.K_LEFT]:
-                left_DAS = True
-                tetrion.left_long_pressed()
-                tetrion.add_DAS_action(consts.MOVE_LEFT)
                 tetrion.add_action(consts.MOVE_LEFT)
             if keys_pressed[pygame.K_RIGHT]:
-                right_DAS = True
-                tetrion.add_DAS_action(consts.MOVE_RIGHT)
                 tetrion.add_action(consts.MOVE_RIGHT)
             if keys_pressed[pygame.K_DOWN]:
-                down_DAS = True
-                tetrion.add_DAS_action(consts.MOVE_DOWN)
                 tetrion.add_action(consts.MOVE_DOWN)
-            if event.type == pygame.KEYDOWN:
-                key = event.key
-                if key == pygame.K_r:
-                    tetrion = Tetrion(WIN, FONT)
-                if key == pygame.K_UP or key == pygame.K_x:
-                    if not left_DAS and not right_DAS and not down_DAS:
-                        tetrion.add_action(consts.ROTATE_RIGHT)
-                if key == pygame.K_z:
-                    if not left_DAS and not right_DAS and not down_DAS:
-                        tetrion.add_action(consts.ROTATE_LEFT)
-                if key == pygame.K_LEFT:
-                    if not left_DAS:
-                        tetrion.add_action(consts.MOVE_LEFT)
-                if key == pygame.K_RIGHT:
-                    if not right_DAS:
-                        tetrion.add_action(consts.MOVE_RIGHT)
-                if key == pygame.K_DOWN:
-                    if not down_DAS:
-                        tetrion.add_action(consts.MOVE_DOWN)
-                if key == pygame.K_c:
-                    tetrion.add_action(consts.HOLD)
-                if key == pygame.K_SPACE:
-                    tetrion.add_action(consts.DROP)
-                if key == pygame.K_p:
-                    tetrion.add_action(consts.PAUSE)
         tetrion.update(pygame.time.get_ticks())
 
     pygame.quit()
@@ -66,3 +56,7 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # ! TODO:
+    # - Add score.
+    # - Add levels.
+    # - Add increase gravity with levels.
