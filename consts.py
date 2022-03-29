@@ -25,6 +25,16 @@ TETROMINOES_NAMES = {
     7: "O",
 }
 
+X = "x"
+Y = "y"
+WIDTH = "width"
+HEIGHT = "height"
+RECT = "rect"
+TITLE = "title"
+FONT = "font"
+TITLE_RECT = "title rect"
+TITLE_FONT = "title font"
+
 """
 This constants represents the different user actions.
 """
@@ -65,11 +75,13 @@ SCORE_FIELD_CACHE = "score_field_cache"
 SCORE_FIELD_TITLE_CACHE = "score_field_title_cache"
 SCORE_FIELD_TITLE_RECT_CACHE = "score_field_title_rect_cache"
 
+LEVEL_FIELD = "level_field"
 LEVEL_FIELD_TITLE = "LEVEL"
 LEVEL_FIELD_CACHE = "level_field_cache"
 LEVEL_FIELD_TITLE_CACHE = "level_field_title_cache"
 LEVEL_FIELD_TITLE_RECT_CACHE = "level_field_title_rect_cache"
 
+LINES_FIELD = "lines_field"
 LINES_FIELD_TITLE = "LINES"
 LINES_FIELD_CACHE = "lines_field_cache"
 LINES_FIELD_TITLE_CACHE = "lines_field_title_cache"

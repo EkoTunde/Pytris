@@ -38,7 +38,7 @@ def main():
                     tetrion.reset_down_DAS()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
-                    tetrion = Tetrion(WIN, FONT)
+                    tetrion = Tetrion(WIN, FONT, BOLD_FONT)
                 if event.key == pygame.K_UP or event.key == pygame.K_x:
                     tetrion.add_action(consts.ROTATE_RIGHT)
                 if event.key == pygame.K_z:
