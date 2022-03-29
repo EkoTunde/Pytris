@@ -9,9 +9,11 @@ def main():
     pygame.display.set_caption(settings.CAPTION)
     pygame.font.init()
     FONT = pygame.font.Font(pygame.font.get_default_font(), 16)
+    BOLD_FONT = pygame.font.Font(pygame.font.get_default_font(), 16)
+    BOLD_FONT.set_bold(True)
     clock = pygame.time.Clock()
     run = True
-    tetrion = Tetrion(WIN, FONT)
+    tetrion = Tetrion(WIN, FONT, BOLD_FONT)
     paused = False
     while run:
         clock.tick(settings.FPS)

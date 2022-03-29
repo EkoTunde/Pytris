@@ -12,25 +12,29 @@ from utils.rotation import get_rotate_right_coords, get_rotate_left_coords
 
 class Tetrion:
 
-    def __init__(self, window: pygame.Surface, font: pygame.font.Font) -> None:
-        self.score = 0
-        self.level = 1
-        self.lines = 0
-        self._is_paused = False
-        self._screen = Screen(window, font)
-        self._ticker = 0
+    def __init__(
+        self,
+        window: pygame.Surface,
+        font: pygame.font.Font,
+        bold_font: pygame.font.Font
+    ) -> None:
+        self._score = settings.INITIAL_SCORE
+        self._level = settings.INITIAL_LEVEL
+        self._lines = settings.INITIAL_LINES
+        self._is_paused = settings.INITIAL_PAUSE
+        self._screen = Screen(window, font, bold_font)
+        self._ticker = settings.INITIAL_TICKER
         self._grid = Grid()
-        self._lock_counter = 0
+        self._lock_counter = settings.INITIAL_LOCK_COUNTER
         self._first_available_row = settings.DEFAULT_AVAILABLE_ROW
         self._provider = Provider()
         initial_coords = calc_initial_coords(self._provider.peek(), self._grid)
         self._provider.load(initial_coords)
         self._actions = []
         self._DAS_actions = []
-        self._on_hold = None
-        self._can_hold = True
-        self._is_droping = False
-        self._DAS_right_on = False
+        self._on_hold = settings.INITIAL_ON_HOLD
+        self._can_hold = settings.INITIAL_CAN_HOLD
+        self._is_droping = settings.INITIAL_IS_DROPPING
         self._right_DAS_ticks = settings.DAS_MAX
         self._left_DAS_ticks = settings.DAS_MAX
         self._down_DAS_ticks = settings.DAS_MAX
@@ -136,24 +140,12 @@ class Tetrion:
         self.reset_left_DAS()
         self.reset_down_DAS()
 
-    def __process_DAS_actions(self):
-        if self._DAS_actions:
-            for i, action in reversed(list(enumerate(self._DAS_actions))):
-                if action == consts.MOVE_RIGHT:
-                    self._DAS_right_on = True
-                if action == consts.MOVE_LEFT:
-                    self._DAS_left_on = True
-                if action == consts.MOVE_DOWN:
-                    self._DAS_down_on = True
-        pass
-
     def __increase_ticker(self):
         self._ticker += 1
 
     def update(self, current_ticks: int) -> None:
         self.__increase_ticker()
         if not self._is_paused and self._ticker > 0:
-            self.__process_DAS_actions()
             self.__apply_movements_from_user_input()
 
             coords = get_move_down_coords(
@@ -166,7 +158,7 @@ class Tetrion:
                     if coords is not None:
                         self._provider.peek().coords = coords
                     self._lock_counter = 0
-                elif self._ticker % (settings.GRAVITY*self.level) == 0:
+                elif self._ticker % (settings.GRAVITY*self._level) == 0:
                     self._provider.peek().coords = coords
             else:
                 if self._is_droping:
@@ -178,7 +170,8 @@ class Tetrion:
                     if self._lock_counter == 30:
                         self.__lock_tetromino()
                         self._lock_counter = 0
-            self._grid.update()
+            self._lines += self._grid.update()
+            self.__update_level()
         self.__draw()
 
     def __draw(self):
@@ -192,6 +185,9 @@ class Tetrion:
             on_hold=self._on_hold,
             ghost_coords=calculate_ghost_coords(
                 self._provider.peek(), self._grid),
+            score=self._score,
+            level=self._level,
+            lines=self._lines,
         )
 
     def __lock_tetromino(self):
@@ -225,3 +221,14 @@ class Tetrion:
         Pause the game by inverting pause (bool).
         """
         self._is_paused = not self._is_paused
+
+    def __update_level(self):
+        self._level = self._lines // 10 + 1
+
+    @property
+    def level(self):
+        return self._level
+
+    def __update_score(self):
+        self._score += self._lines * settings.SCORE_PER_LINE
+        self._lines = 0

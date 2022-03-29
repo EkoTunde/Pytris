@@ -59,6 +59,22 @@ HOLD_FIELD_CACHE = "hold_field_cache"
 HOLD_FIELD_TITLE_CACHE = "hold_field_title_cache"
 HOLD_FIELD_TITLE_RECT_CACHE = "hold_field_title_rect_cache"
 
+
+SCORE_FIELD_TITLE = "SCORE"
+SCORE_FIELD_CACHE = "score_field_cache"
+SCORE_FIELD_TITLE_CACHE = "score_field_title_cache"
+SCORE_FIELD_TITLE_RECT_CACHE = "score_field_title_rect_cache"
+
+LEVEL_FIELD_TITLE = "LEVEL"
+LEVEL_FIELD_CACHE = "level_field_cache"
+LEVEL_FIELD_TITLE_CACHE = "level_field_title_cache"
+LEVEL_FIELD_TITLE_RECT_CACHE = "level_field_title_rect_cache"
+
+LINES_FIELD_TITLE = "LINES"
+LINES_FIELD_CACHE = "lines_field_cache"
+LINES_FIELD_TITLE_CACHE = "lines_field_title_cache"
+LINES_FIELD_TITLE_RECT_CACHE = "lines_field_title_rect_cache"
+
 WHITE = (255, 255, 255)
 
 BLOCKS_WIDTH = {
