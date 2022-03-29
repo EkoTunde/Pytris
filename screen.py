@@ -2,9 +2,6 @@ from typing import List, Tuple
 import pygame
 from assets import ASSETS
 import assets
-from cache.cache import Cache
-from cache.field import Field
-from cache.title import Title
 import consts
 from tetrominoes import Tetromino
 from provider import Provider
