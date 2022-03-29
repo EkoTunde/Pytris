@@ -171,6 +171,7 @@ class Tetrion:
                         self.__lock_tetromino()
                         self._lock_counter = 0
             self._lines += self._grid.update()
+            self._level = self._lines // 10 + 1
             self.__update_level()
         self.__draw()
 

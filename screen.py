@@ -84,6 +84,18 @@ class Screen:
                 }
             }
         }
+        self.__precache()
+
+    def __precache(self):
+        self._cache["LINES_TITLE_X_Y"] = None
+        self._cache["LINES_TITLE_SURFACE"] = None
+        self._cache["CURRENT_LINES_X_Y"] = None
+        self._cache["LEVEL_TITLE_X_Y"] = None
+        self._cache["LEVEL_TITLE_SURFACE"] = None
+        self._cache["CURRENT_LEVEL_X_Y"] = None
+        self._cache["SCORE_TITLE_X_Y"] = None
+        self._cache["SCORE_TITLE_SURFACE"] = None
+        self._cache["CURRENT_SCORE_X_Y"] = None
 
     def draw(
         self,
@@ -112,16 +124,20 @@ class Screen:
                 self.__draw_tetromino_on_hold(on_hold)
             if ghost_coords:
                 self.__draw_ghost_tetromino(ghost_coords)
-            self.__draw_lines_field()
-            self.__draw_line_hidden_field()
+            self.__draw_info_rects()
             self.__draw_lines_title()
             self.__draw_current_lines(lines)
+            self.__draw_level_title()
+            self.__draw_current_level(level)
+            self.__draw_score_title()
+            self.__draw_current_score(score)
+            # self.__draw_lines_field()
+            # self.__draw_line_hidden_field()
+            # self.__draw_lines_title()
             # self.__draw_level_field()
             # self.__draw_level_title()
-            # self.__draw_current_level(level)
             # self.__draw_score_field()
             # self.__draw_score_title()
-            # self.__draw_current_score(score)
         pygame.display.update()
 
     def __draw_playfield(self):
@@ -228,78 +244,80 @@ class Screen:
             y += settings.BASE_NEXT_FIELD_PADDING
         self.win.blit(asset, (x, y))
 
-    def __draw_lines_field(self) -> None:
-        self._cache[LINES_FIELD][RECT] = pygame.draw.rect(
-            self.win,
-            settings.FIELDS_BACKGROUND,
-            settings.LINES_FIELD_RECT_VALUE)
-
-    def __draw_line_hidden_field(self) -> None:
-        self._cache[LINES_FIELD][HIDDEN_RECT] = pygame.draw.rect(
-            self.win,
-            (255, 0, 0),
-            # settings.BACKGROUND,
-            settings.LINES_FIELD_HIDDEN_RECT_VALUE)
+    def __draw_info_rects(self, items=[1, 0.8, 1, 0.8, 1, 0.8]):
+        self._cache["INFO_RECTS_CACHE"] = []
+        for i, item in enumerate(items):
+            h = settings.DEFAULT_INFO_FIELD_HEIGHT*item
+            if i == 0:
+                y = settings.PLAYFIELD_Y+settings.PLAYFIELD_HEIGHT - h
+            else:
+                y = self._cache["INFO_RECTS_CACHE"][-1].top - h
+            rect = pygame.draw.rect(
+                self.win,
+                (settings.FIELDS_BACKGROUND if item == 1 else
+                 settings.BACKGROUND),
+                (settings.DEFAULT_INFO_FIELD_X,
+                 y,
+                 settings.DEFAULT_INFO_FIELD_WIDTH,
+                 h))
+            self._cache["INFO_RECTS_CACHE"].append(rect)
 
     def __draw_lines_title(self) -> None:
-        title = self._cache[LINES_FIELD][TITLE][FONT]
-        if self._cache[LINES_FIELD][TITLE][RECT] is None:
-            x, y = x_y_for_text_centered_aligned(
-                title, self._cache[LINES_FIELD][HIDDEN_RECT])
-        else:
-            x = self._cache[LINES_FIELD][TITLE][RECT].left
-            y = self._cache[LINES_FIELD][TITLE][RECT].top
-        self._cache[LINES_FIELD][TITLE][RECT] = self.win.blit(title, (x, y))
+        if self._cache["LINES_TITLE_SURFACE"] is None:
+            self._cache["LINES_TITLE_SURFACE"] = self._font.render(
+                consts.LINES_FIELD_TITLE, False, consts.WHITE)
+        if self._cache["LINES_TITLE_X_Y"] is None:
+            self._cache["LINES_TITLE_X_Y"] = x_y_for_text_centered_aligned(
+                text_surface=self._cache["LINES_TITLE_SURFACE"],
+                key_rect=self._cache["INFO_RECTS_CACHE"][1])
+        self.win.blit(self._cache["LINES_TITLE_SURFACE"],
+                      self._cache["LINES_TITLE_X_Y"])
 
-    def __get_lines_title_x(self, title: pygame.font.Font) -> int:
-        lines_field = self._cache[LEVEL_FIELD][RECT]
-        lines_field_center_x = lines_field.left + lines_field.width / 2
-        title_center_x = title.get_width() / 2
-        return lines_field_center_x - title_center_x
-
-    def __get_lines_title_y(self, title: pygame.font.Font) -> int:
-        lines_field_top = self._cache[LEVEL_FIELD][RECT].top
-        title_center_y = title.get_height() / 2
-        return lines_field_top - title_center_y*2
-
-    def __draw_level_field(self) -> None:
-        self._cache[consts.LEVEL_FIELD_CACHE] = pygame.draw.rect(
-            self.win, settings.FIELDS_BACKGROUND, (
-                settings.DEFAULT_INFO_FIELD_X,
-                self._cache[LINES_FIELD][TITLE][RECT].top -
-                settings.DEFAULT_INFO_FIELD_HEIGHT-settings.BASE_SQUARE_SIZE/2,
-                # settings.PLAYFIELD_Y +
-                # settings.PLAYFIELD_HEIGHT -
-                # (settings.BASE_SQUARE_SIZE*6),
-                settings.DEFAULT_INFO_FIELD_WIDTH,
-                settings.DEFAULT_INFO_FIELD_HEIGHT))
+    def __draw_current_lines(self, lines: int) -> None:
+        text_surface = self._font.render(str(lines), False, consts.WHITE)
+        if self._cache["CURRENT_LINES_X_Y"] is None:
+            self._cache["CURRENT_LINES_X_Y"] = x_y_for_text_centered_aligned(
+                text_surface=text_surface,
+                key_rect=self._cache["INFO_RECTS_CACHE"][0])
+        self.win.blit(text_surface,
+                      self._cache["CURRENT_LINES_X_Y"])
 
     def __draw_level_title(self) -> None:
-        pass
-        # title = self._cache[consts.LEVEL_FIELD_TITLE_CACHE]
-        # if consts.LEVEL_FIELD_TITLE_RECT_CACHE in self._cache:
-        #     x = self._cache[consts.LEVEL_FIELD_TITLE_RECT_CACHE].left
-        # else:
-        #     level_field = self._cache[consts.LEVEL_FIELD_CACHE]
-        #     level_field_center_x = level_field.left + level_field.width / 2
-        #     title_center_x = title.get_width() / 2
-        #     x = level_field_center_x - title_center_x
-        # rect = self.win.blit(
-        #     title, (x, settings.PLAYFIELD_Y +
-        #             settings.PLAYFIELD_HEIGHT-settings.BASE_SQUARE_SIZE*6))
-        # self._cache[consts.LEVEL_FIELD_TITLE_RECT_CACHE] = rect
+        if self._cache["LEVEL_TITLE_SURFACE"] is None:
+            self._cache["LEVEL_TITLE_SURFACE"] = self._font.render(
+                consts.LEVEL_FIELD_TITLE, False, consts.WHITE)
+        if self._cache["LEVEL_TITLE_X_Y"] is None:
+            self._cache["LEVEL_TITLE_X_Y"] = x_y_for_text_centered_aligned(
+                text_surface=self._cache["LEVEL_TITLE_SURFACE"],
+                key_rect=self._cache["INFO_RECTS_CACHE"][3])
+        self.win.blit(self._cache["LEVEL_TITLE_SURFACE"],
+                      self._cache["LEVEL_TITLE_X_Y"])
 
     def __draw_current_level(self, level) -> None:
-        pass
-
-    def __draw_current_score(self, score) -> None:
-        pass
-
-    def __draw_score_field(self) -> None:
-        pass
+        text_surface = self._font.render(str(level), False, consts.WHITE)
+        if self._cache["CURRENT_LEVEL_X_Y"] is None:
+            self._cache["CURRENT_LEVEL_X_Y"] = x_y_for_text_centered_aligned(
+                text_surface=text_surface,
+                key_rect=self._cache["INFO_RECTS_CACHE"][2])
+        self.win.blit(text_surface,
+                      self._cache["CURRENT_LEVEL_X_Y"])
 
     def __draw_score_title(self) -> None:
-        pass
+        if self._cache["SCORE_TITLE_SURFACE"] is None:
+            self._cache["SCORE_TITLE_SURFACE"] = self._font.render(
+                consts.SCORE_FIELD_TITLE, False, consts.WHITE)
+        if self._cache["SCORE_TITLE_X_Y"] is None:
+            self._cache["SCORE_TITLE_X_Y"] = x_y_for_text_centered_aligned(
+                text_surface=self._cache["SCORE_TITLE_SURFACE"],
+                key_rect=self._cache["INFO_RECTS_CACHE"][5])
+        self.win.blit(self._cache["SCORE_TITLE_SURFACE"],
+                      self._cache["SCORE_TITLE_X_Y"])
 
-    def __draw_current_lines(self, lines) -> None:
-        pass
+    def __draw_current_score(self, score) -> None:
+        text_surface = self._font.render(str(score), False, consts.WHITE)
+        if self._cache["CURRENT_SCORE_X_Y"] is None:
+            self._cache["CURRENT_SCORE_X_Y"] = x_y_for_text_centered_aligned(
+                text_surface=text_surface,
+                key_rect=self._cache["INFO_RECTS_CACHE"][4])
+        self.win.blit(text_surface,
+                      self._cache["CURRENT_SCORE_X_Y"])
