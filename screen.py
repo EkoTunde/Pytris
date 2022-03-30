@@ -1,6 +1,6 @@
 from typing import List, Tuple
 import pygame
-from assets import ASSETS
+from assets import BLOCKS
 import assets
 import consts
 from tetrominoes import Tetromino
@@ -117,10 +117,11 @@ class Screen:
             if provider:
                 self.__draw_falling_tetromino(provider.peek())
                 self.__draw_next_tetrominoes(provider)
+                if ghost_coords:
+                    self.__draw_ghost_tetromino(
+                        ghost_coords, provider.peek().figure_type)
             if on_hold:
                 self.__draw_tetromino_on_hold(on_hold)
-            if ghost_coords:
-                self.__draw_ghost_tetromino(ghost_coords)
             self.__draw_info_rects()
             self.__draw_lines_title()
             self.__draw_current_lines(lines)
@@ -128,13 +129,6 @@ class Screen:
             self.__draw_current_level(level)
             self.__draw_score_title()
             self.__draw_current_score(score)
-            # self.__draw_lines_field()
-            # self.__draw_line_hidden_field()
-            # self.__draw_lines_title()
-            # self.__draw_level_field()
-            # self.__draw_level_title()
-            # self.__draw_score_field()
-            # self.__draw_score_title()
         pygame.display.update()
 
     def __draw_playfield(self):
@@ -158,7 +152,7 @@ class Screen:
                     x = settings.PLAYFIELD_X + j * settings.BASE_SQUARE_SIZE
                     y = settings.PLAYFIELD_Y + (settings.ROWS - i-1) * \
                         settings.BASE_SQUARE_SIZE
-                    self.win.blit(ASSETS[grid.items[i][j]], (x, y))
+                    self.win.blit(BLOCKS[grid.items[i][j]], (x, y))
 
     def __draw_falling_tetromino(self, tetromino: Tetromino) -> None:
         for row, col in tetromino.coords:
@@ -169,13 +163,14 @@ class Screen:
 
     def __draw_ghost_tetromino(
         self,
-        ghost_coords: List[Tuple[int, int]]
+        ghost_coords: List[Tuple[int, int]],
+        figure_type: int
     ) -> None:
         for row, col in ghost_coords:
             x = settings.PLAYFIELD_X + col*settings.BASE_SQUARE_SIZE
             y = settings.PLAYFIELD_Y + (settings.ROWS - 1 - row) * \
                 settings.BASE_SQUARE_SIZE
-            self.win.blit(assets.ASSETS[consts.GHOST], (x, y))
+            self.win.blit(assets.GHOST_BLOCKS[figure_type], (x, y))
 
     def __draw_next_field(self):
         self._cache[consts.NEXT_FIELD_CACHE] = pygame.draw.rect(

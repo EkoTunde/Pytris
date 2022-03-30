@@ -1,6 +1,6 @@
 import consts
 import pygame
-from assets import ASSETS
+from assets import BLOCKS
 from typing import List, Tuple, Union
 
 
@@ -15,7 +15,7 @@ class Tetromino:
                 and self._figure_type < 1
                 or self._figure_type > 7):
             raise ValueError("Figure type must be an integer between 1 and 7")
-        self._asset = ASSETS.get(self._figure_type)
+        self._asset = BLOCKS.get(self._figure_type)
         self._coords = None
         self._rotation = consts.DEGREES_0
         self._initial_x = 3

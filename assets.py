@@ -12,6 +12,14 @@ def tetromino_block_image(figure_type) -> pygame.Surface:
     return pygame.image.load(tetromino_block_dir(figure_type))
 
 
+def tetromino_ghost_block_dir(figure_type) -> str:
+    return os.path.join('assets', f'figure_{figure_type}_ghost_block.png')
+
+
+def tetromino_ghost_block_image(figure_type) -> pygame.Surface:
+    return pygame.image.load(tetromino_ghost_block_dir(figure_type))
+
+
 def tetromino_dir(figure_type) -> str:
     return os.path.join('assets', f'figure_{figure_type}.png')
 
@@ -22,7 +30,7 @@ def tetromino_image(figure_type) -> pygame.Surface:
 
 SIZE = (settings.BASE_SQUARE_SIZE, settings.BASE_SQUARE_SIZE)
 
-ASSETS = {
+BLOCKS = {
     consts.TETROMINO_I: pygame.transform.scale(
         tetromino_block_image(consts.TETROMINO_I),
         SIZE
@@ -53,6 +61,37 @@ ASSETS = {
     ),
     consts.GHOST: pygame.transform.scale(
         pygame.image.load(os.path.join('assets', 'ghost_block.png')),
+        SIZE
+    ),
+}
+
+GHOST_BLOCKS = {
+    consts.TETROMINO_I: pygame.transform.scale(
+        tetromino_ghost_block_image(consts.TETROMINO_I),
+        SIZE
+    ),
+    consts.TETROMINO_Z: pygame.transform.scale(
+        tetromino_ghost_block_image(consts.TETROMINO_Z),
+        SIZE
+    ),
+    consts.TETROMINO_S: pygame.transform.scale(
+        tetromino_ghost_block_image(consts.TETROMINO_S),
+        SIZE
+    ),
+    consts.TETROMINO_T: pygame.transform.scale(
+        tetromino_ghost_block_image(consts.TETROMINO_T),
+        SIZE
+    ),
+    consts.TETROMINO_J: pygame.transform.scale(
+        tetromino_ghost_block_image(consts.TETROMINO_J),
+        SIZE
+    ),
+    consts.TETROMINO_L: pygame.transform.scale(
+        tetromino_ghost_block_image(consts.TETROMINO_L),
+        SIZE
+    ),
+    consts.TETROMINO_O: pygame.transform.scale(
+        tetromino_ghost_block_image(consts.TETROMINO_O),
         SIZE
     ),
 }

@@ -18,26 +18,27 @@ class Tetrion:
         font: pygame.font.Font,
         bold_font: pygame.font.Font
     ) -> None:
-        self._score = settings.INITIAL_SCORE
-        self._level = settings.INITIAL_LEVEL
-        self._lines = settings.INITIAL_LINES
-        self._is_paused = settings.INITIAL_PAUSE
+        self.__score = settings.INITIAL_SCORE
+        self.__level = settings.INITIAL_LEVEL
+        self.__lines = settings.INITIAL_LINES
+        self.__is_paused = settings.INITIAL_PAUSE
         self._screen = Screen(window, font, bold_font)
-        self._ticker = settings.INITIAL_TICKER
-        self._grid = Grid()
+        self.__ticker = settings.INITIAL_TICKER
+        self.__grid = Grid()
         self._lock_counter = settings.INITIAL_LOCK_COUNTER
         self._first_available_row = settings.DEFAULT_AVAILABLE_ROW
-        self._provider = Provider()
-        initial_coords = calc_initial_coords(self._provider.peek(), self._grid)
-        self._provider.load(initial_coords)
-        self._actions = []
+        self.__provider = Provider()
+        initial_coords = calc_initial_coords(
+            self.__provider.peek(), self.__grid)
+        self.__provider.load(initial_coords)
+        self.__actions = []
         self._DAS_actions = []
-        self._on_hold = settings.INITIAL_ON_HOLD
-        self._can_hold = settings.INITIAL_CAN_HOLD
-        self._is_droping = settings.INITIAL_IS_DROPPING
+        self.__on_hold = settings.INITIAL_ON_HOLD
+        self.__can_hold = settings.INITIAL_CAN_HOLD
+        self.__is_droping = settings.INITIAL_IS_DROPPING
         self._right_DAS_ticks = settings.DAS_MAX
-        self._left_DAS_ticks = settings.DAS_MAX
-        self._down_DAS_ticks = settings.DAS_MAX
+        self.__left_DAS_ticks = settings.DAS_MAX
+        self.__down_DAS_ticks = settings.DAS_MAX
 
     def add_action(self, key: int):
         """
@@ -46,20 +47,20 @@ class Tetrion:
         Args:
             key (int): an event.key event from pygame.
         """
-        self._actions.insert(0, key)
+        self.__actions.insert(0, key)
 
     def reset_right_DAS(self):
         self._right_DAS_ticks = settings.DAS_MAX
 
     def reset_left_DAS(self):
-        self._left_DAS_ticks = settings.DAS_MAX
+        self.__left_DAS_ticks = settings.DAS_MAX
 
     def reset_down_DAS(self):
-        self._down_DAS_ticks = settings.DAS_MAX
+        self.__down_DAS_ticks = settings.DAS_MAX
 
     def pause(self):
-        self._is_paused = not self._is_paused
-        self._actions = []
+        self.__is_paused = not self.__is_paused
+        self.__actions = []
 
     @property
     def ACTIONABLES(self):
@@ -81,10 +82,10 @@ class Tetrion:
         }
 
     def __apply_movements_from_user_input(self) -> bool:
-        for action in self._actions:
+        for action in self.__actions:
             if self.ACTIONABLES[action]["needs_args"]:
                 new_coords = self.ACTIONABLES[action]["callable"](
-                    self._provider.peek(), self._grid)
+                    self.__provider.peek(), self.__grid)
                 if new_coords is not None:
 
                     # IF MOVING RIGHT
@@ -92,48 +93,47 @@ class Tetrion:
                         self.reset_left_DAS()
                         if (self._right_DAS_ticks == settings.DAS_MAX or
                                 self._right_DAS_ticks < 0):
-                            if not self._is_droping:
-                                self._provider.peek().coords = new_coords
+                            if not self.__is_droping:
+                                self.__provider.peek().coords = new_coords
                         self._right_DAS_ticks -= 1
 
                     # IF MOVING LEFT
                     elif action == consts.MOVE_LEFT:
                         self.reset_right_DAS()
-                        if (self._left_DAS_ticks == settings.DAS_MAX or
-                                self._left_DAS_ticks < 0):
-                            if not self._is_droping:
-                                self._provider.peek().coords = new_coords
-                        self._left_DAS_ticks -= 1
+                        if (self.__left_DAS_ticks == settings.DAS_MAX or
+                                self.__left_DAS_ticks < 0):
+                            if not self.__is_droping:
+                                self.__provider.peek().coords = new_coords
+                        self.__left_DAS_ticks -= 1
 
                     # IF MOVING DOWN
                     elif action == consts.MOVE_DOWN:
-                        if (self._down_DAS_ticks == settings.DAS_MAX or
-                                self._down_DAS_ticks < 0):
-                            if not self._is_droping:
-                                self._provider.peek().coords = new_coords
-                        self._down_DAS_ticks -= 1
+                        if (self.__down_DAS_ticks == settings.DAS_MAX or
+                                self.__down_DAS_ticks < 0):
+                            if not self.__is_droping:
+                                self.__provider.peek().coords = new_coords
+                        self.__down_DAS_ticks -= 1
 
                     elif (action == consts.ROTATE_RIGHT
                           or action == consts.ROTATE_LEFT):
-                        if not self._is_droping:
-                            self._provider.peek().coords = new_coords
+                        if not self.__is_droping:
+                            self.__provider.peek().coords = new_coords
 
                     # ANYTHING ELSE
                     else:
-                        self._provider.peek().coords = new_coords
+                        self.__provider.peek().coords = new_coords
 
-                    if action == consts.ROTATE_RIGHT and not self._is_droping:
-                        self._provider.peek().rotate_right()
-                    if action == consts.ROTATE_LEFT and not self._is_droping:
-                        self._provider.peek().rotate_left()
+                    if action == consts.ROTATE_RIGHT and not self.__is_droping:
+                        self.__provider.peek().rotate_right()
+                    if action == consts.ROTATE_LEFT and not self.__is_droping:
+                        self.__provider.peek().rotate_left()
                     if action != consts.MOVE_DOWN:
                         self._lock_counter = 0
                     if action == consts.HOLD or action == consts.DROP:
                         self.__clear_DAS()
             else:
                 new_coords = self.ACTIONABLES[action]["callable"]()
-                # self._provider.peek().coords = new_coords
-        self._actions = []
+        self.__actions = []
 
     def __clear_DAS(self):
         self.reset_right_DAS()
@@ -141,28 +141,28 @@ class Tetrion:
         self.reset_down_DAS()
 
     def __increase_ticker(self):
-        self._ticker += 1
+        self.__ticker += 1
 
     def update(self, current_ticks: int) -> None:
         self.__increase_ticker()
-        if not self._is_paused and self._ticker > 0:
+        if not self.__is_paused and self.__ticker > 0:
             self.__apply_movements_from_user_input()
 
             coords = get_move_down_coords(
-                self._provider.peek(), self._grid)
+                self.__provider.peek(), self.__grid)
             if coords is not None:
-                if self._is_droping:
-                    self._provider.peek().coords = coords
+                if self.__is_droping:
+                    self.__provider.peek().coords = coords
                     coords = get_move_down_coords(
-                        self._provider.peek(), self._grid)
+                        self.__provider.peek(), self.__grid)
                     if coords is not None:
-                        self._provider.peek().coords = coords
+                        self.__provider.peek().coords = coords
                     self._lock_counter = 0
-                elif self._ticker % (settings.GRAVITY*self._level) == 0:
-                    self._provider.peek().coords = coords
+                elif self.__ticker % (settings.GRAVITY*self.__level) == 0:
+                    self.__provider.peek().coords = coords
             else:
-                if self._is_droping:
-                    self._is_droping = False
+                if self.__is_droping:
+                    self.__is_droping = False
                     self.__lock_tetromino()
                     self._lock_counter = 0
                 else:
@@ -170,9 +170,8 @@ class Tetrion:
                     if self._lock_counter == 30:
                         self.__lock_tetromino()
                         self._lock_counter = 0
-            self._lines += self._grid.update()
-            self._level = self._lines // 10 + 1
-            self.__update_level()
+            self.__lines += self.__grid.update()
+            self.__level = self.__lines // 10 + 1
         self.__draw()
 
     def __draw(self):
@@ -180,56 +179,53 @@ class Tetrion:
         Signal screen to draw game data.
         """
         self._screen.draw(
-            is_paused=self._is_paused,
-            grid=self._grid,
-            provider=self._provider,
-            on_hold=self._on_hold,
+            is_paused=self.__is_paused,
+            grid=self.__grid,
+            provider=self.__provider,
+            on_hold=self.__on_hold,
             ghost_coords=calculate_ghost_coords(
-                self._provider.peek(), self._grid),
-            score=self._score,
-            level=self._level,
-            lines=self._lines,
+                self.__provider.peek(), self.__grid),
+            score=self.__score,
+            level=self.__level,
+            lines=self.__lines,
         )
 
     def __lock_tetromino(self):
-        tetromino = self._provider.dequeue()
-        self._first_available_row = self._grid.add(
+        tetromino = self.__provider.dequeue()
+        self._first_available_row = self.__grid.add(
             coords=tetromino.coords,
             figure_type=tetromino.figure_type)
-        self._provider.load(calc_initial_coords(
-            self._provider.peek(), self._grid))
-        self._can_hold = True
-        self._is_droping = False
+        self.__provider.load(calc_initial_coords(
+            self.__provider.peek(), self.__grid))
+        self.__can_hold = True
+        self.__is_droping = False
 
     def __hold(self) -> None:
-        if self._can_hold:
-            self._can_hold = False
-            if self._on_hold is not None:
-                self._on_hold = self._provider.replace_first(self._on_hold)
+        if self.__can_hold:
+            self.__can_hold = False
+            if self.__on_hold is not None:
+                self.__on_hold = self.__provider.replace_first(self.__on_hold)
             else:
-                self._on_hold = self._provider.dequeue()
-            self._on_hold.coords = calc_initial_coords(
-                self._on_hold, self._grid)
+                self.__on_hold = self.__provider.dequeue()
+            self.__on_hold.coords = calc_initial_coords(
+                self.__on_hold, self.__grid)
             initial_coords = calc_initial_coords(
-                self._provider.peek(), self._grid)
-            self._provider.load(initial_coords)
+                self.__provider.peek(), self.__grid)
+            self.__provider.load(initial_coords)
 
     def __drop(self) -> None:
-        self._is_droping = True
+        self.__is_droping = True
 
     def pause_game(self) -> None:
         """
         Pause the game by inverting pause (bool).
         """
-        self._is_paused = not self._is_paused
-
-    def __update_level(self):
-        self._level = self._lines // 10 + 1
+        self.__is_paused = not self.__is_paused
 
     @property
     def level(self):
-        return self._level
+        return self.__level
 
     def __update_score(self):
-        self._score += self._lines * settings.SCORE_PER_LINE
-        self._lines = 0
+        self.__score += self.__lines * settings.SCORE_PER_LINE
+        self.__lines = 0
