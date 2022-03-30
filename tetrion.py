@@ -216,12 +216,6 @@ class Tetrion:
     def __drop(self) -> None:
         self.__is_droping = True
 
-    def pause_game(self) -> None:
-        """
-        Pause the game by inverting pause (bool).
-        """
-        self.__is_paused = not self.__is_paused
-
     @property
     def level(self):
         return self.__level
